@@ -4,310 +4,550 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ScholarMatch AI</title>
-<meta name="theme-color" content="#1D9E75">
+<meta name="theme-color" content="#0A0A0A">
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="ScholarMatch">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <style>
-:root{--accent:#1D9E75;--accent-light:#E1F5EE;--accent-dark:#085041;--accent-mid:#0F6E56;--amber:#BA7517;--amber-light:#FAEEDA;--red:#A32D2D;--red-light:#FCEBEB;--blue:#185FA5;--blue-light:#E6F1FB;--bg:#F8F8F6;--bg-card:#FFFFFF;--bg-secondary:#F1EFE8;--text:#1a1a18;--text-muted:#5F5E5A;--text-faint:#888780;--border:rgba(0,0,0,0.1);--border-hover:rgba(0,0,0,0.22);--radius:10px;--radius-sm:6px;--shadow:0 1px 4px rgba(0,0,0,0.07);--font:'Segoe UI',system-ui,-apple-system,sans-serif}
-@media(prefers-color-scheme:dark){:root{--bg:#111110;--bg-card:#1C1C1A;--bg-secondary:#252523;--text:#F1EFE8;--text-muted:#B4B2A9;--text-faint:#5F5E5A;--border:rgba(255,255,255,0.1);--border-hover:rgba(255,255,255,0.22);--accent-light:#04342C;--amber-light:#412402;--red-light:#501313;--blue-light:#042C53;--shadow:0 1px 4px rgba(0,0,0,0.3)}}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:var(--font);background:var(--bg);color:var(--text);font-size:15px}
-#app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
-/* Header */
-.header{background:var(--bg-card);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:52px;flex-shrink:0;gap:12px}
-.logo{display:flex;align-items:center;gap:9px;text-decoration:none;flex-shrink:0}
-.logo-icon{width:30px;height:30px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-size:15px;font-weight:700}
-.logo-text{font-size:15px;font-weight:600;color:var(--text)}
-.logo-text span{color:var(--accent)}
-.header-right{display:flex;align-items:center;gap:8px}
-.lang-select{font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);cursor:pointer}
-.profile-chip{display:flex;align-items:center;gap:7px;padding:5px 10px;border:1px solid var(--border);border-radius:20px;font-size:13px;color:var(--text-muted);cursor:pointer;white-space:nowrap}
-.profile-chip:hover{border-color:var(--border-hover)}
-.profile-avatar{width:22px;height:22px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:600;flex-shrink:0}
-.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text-faint);flex-shrink:0;transition:background .3s}
-.sync-dot.syncing{background:var(--amber);animation:pulse 1s infinite}
-.sync-dot.synced{background:var(--accent)}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-/* Nav */
-.nav{background:var(--bg-card);border-bottom:1px solid var(--border);padding:0 20px;display:flex;gap:2px;flex-shrink:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.nav-tab{padding:10px 14px;font-size:13px;color:var(--text-muted);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;display:flex;align-items:center;gap:6px;transition:color .15s;white-space:nowrap;flex-shrink:0}
-.nav-tab:hover{color:var(--text)}
-.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:500}
-/* Main */
-.main{flex:1;overflow-y:auto;padding:20px}
-.page{display:none;max-width:900px;margin:0 auto}
-.page.active{display:block}
-/* Onboarding */
-#onboarding{position:fixed;inset:0;background:var(--bg);z-index:100;overflow-y:auto;padding:40px 20px;display:flex;align-items:flex-start;justify-content:center}
-.onboarding-inner{max-width:560px;width:100%}
-.step{display:none}
-.step.active{display:block}
-.step-indicator{display:flex;gap:6px;margin-bottom:28px}
-.step-dot{width:28px;height:4px;border-radius:2px;background:var(--border);transition:background .3s}
-.step-dot.done{background:var(--accent)}
-.ob-title{font-size:22px;font-weight:600;margin-bottom:6px}
-.ob-sub{font-size:14px;color:var(--text-muted);margin-bottom:24px}
-/* Forms */
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
-.form-grid.single{grid-template-columns:1fr}
-.form-group{display:flex;flex-direction:column;gap:5px}
-.form-group.span2{grid-column:span 2}
-label.field-label{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
-input,select{padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-card);color:var(--text);font-size:14px;font-family:var(--font);outline:none;transition:border-color .15s;width:100%}
-input:focus,select:focus{border-color:var(--accent)}
-.checkbox-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.cb-item{display:flex;align-items:center;gap:8px;padding:9px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-size:13px;transition:all .15s;user-select:none}
-.cb-item:hover{border-color:var(--accent)}
-.cb-item.checked{background:var(--accent-light);border-color:var(--accent);color:var(--accent-dark)}
-/* Buttons */
-.btn{padding:10px 20px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:7px;text-decoration:none}
-.btn-primary{background:var(--accent);color:white}
-.btn-primary:hover{background:var(--accent-mid)}
-.btn-secondary{background:var(--bg-secondary);color:var(--text);border:1px solid var(--border)}
-.btn-secondary:hover{border-color:var(--border-hover)}
-.btn-ai{background:var(--accent-light);color:var(--accent-dark);border:1px solid var(--accent);font-size:13px;padding:7px 14px}
-.btn-ai:hover{background:var(--accent);color:white}
-.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text-muted);font-size:13px;padding:7px 12px}
-.btn-outline:hover{border-color:var(--border-hover);color:var(--text)}
-.btn-row{display:flex;gap:10px;justify-content:flex-end}
-/* Cards */
-.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
-/* Win banner */
-.win-banner{background:var(--accent-dark);border-radius:var(--radius);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;color:white}
-.wb-label{font-size:12px;color:#9FE1CB;margin-bottom:4px}
-.wb-amount{font-size:30px;font-weight:700}
-.wb-sub{font-size:13px;color:#9FE1CB;margin-top:2px}
-/* Stats */
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
-.stat{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px}
-.s-label{font-size:12px;color:var(--text-muted);margin-bottom:4px}
-.s-value{font-size:22px;font-weight:700;color:var(--text)}
-.s-value.green{color:var(--accent)}
-.s-value.amber{color:var(--amber)}
-.s-value.red{color:var(--red)}
-/* Scholarship cards */
-.sch-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);position:relative;transition:border-color .15s;margin-bottom:10px}
-.sch-card:hover{border-color:var(--border-hover)}
-.sch-card.urgent{border-left:3px solid var(--red);border-radius:0 var(--radius) var(--radius) 0}
-.sch-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
-.sch-title{font-size:14px;font-weight:600;color:var(--text)}
-.sch-provider{font-size:12px;color:var(--text-muted);margin-top:2px}
-.score-ring{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;border:2px solid;flex-shrink:0}
-.score-ring.high{background:var(--accent-light);color:var(--accent-dark);border-color:var(--accent)}
-.score-ring.medium{background:var(--amber-light);color:#5a3200;border-color:var(--amber)}
-.score-ring.low{background:var(--bg-secondary);color:var(--text-muted);border-color:var(--border)}
-.sch-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
-.tag{font-size:11px;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px}
-.tag-award{background:var(--accent-light);color:var(--accent-dark)}
-.tag-dl{background:var(--bg-secondary);color:var(--text-muted)}
-.tag-urgent{background:var(--red-light);color:var(--red)}
-.tag-field{background:var(--blue-light);color:var(--blue)}
-.tag-noessay{background:var(--amber-light);color:var(--amber)}
-.sch-desc{font-size:12px;color:var(--text-muted);margin-bottom:8px;line-height:1.5}
-.sch-reasons{display:flex;flex-wrap:wrap;gap:8px;padding-top:10px;border-top:1px solid var(--border);margin-bottom:8px}
-.reason{font-size:11px;color:var(--text-muted)}
-.reason::before{content:"✓ ";color:var(--accent);font-weight:700}
-.sch-actions{display:flex;gap:8px;flex-wrap:wrap}
-.urg-badge{position:absolute;top:10px;right:12px;font-size:10px;background:var(--red-light);color:var(--red);padding:2px 8px;border-radius:10px;font-weight:600}
-.status-sel{font-size:12px;padding:5px 8px;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer}
-/* Filters */
-.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-.filter-btn{padding:5px 13px;border:1px solid var(--border);border-radius:20px;background:var(--bg-card);font-size:12px;color:var(--text-muted);cursor:pointer;transition:all .15s;white-space:nowrap}
-.filter-btn:hover{border-color:var(--border-hover);color:var(--text)}
-.filter-btn.active{background:var(--accent);border-color:var(--accent);color:white}
-/* Pipeline */
-.pipeline-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
-.pcol{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px;min-height:180px}
-.pcol-header{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
-.pcol-count{background:var(--bg-secondary);color:var(--text-faint);font-size:11px;padding:2px 7px;border-radius:10px}
-.pi{background:var(--bg-secondary);border-radius:var(--radius-sm);padding:8px 10px;margin-bottom:6px;border-left:3px solid;font-size:12px}
-.pi-title{font-weight:500;color:var(--text)}
-.pi-amt{font-size:11px;color:var(--text-muted);margin-top:2px}
-.pi-not{border-left-color:#B4B2A9}
-.pi-prog{border-left-color:var(--amber)}
-.pi-sub{border-left-color:var(--blue)}
-.pi-won{border-left-color:var(--accent)}
-.pi-lost{border-left-color:var(--red);opacity:.6}
-/* Planner */
-.plan-section{margin-bottom:14px}
-.plan-title{font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
-.task{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;display:flex;align-items:flex-start;gap:10px;box-shadow:var(--shadow);margin-bottom:6px}
-.task-chk{width:20px;height:20px;border:1.5px solid var(--border);border-radius:4px;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-top:1px}
-.task-chk:hover{border-color:var(--accent)}
-.task-chk.done{background:var(--accent);border-color:var(--accent);color:white;font-size:12px}
-.task-title{font-size:13px;font-weight:500;color:var(--text)}
-.task-meta{font-size:11px;color:var(--text-muted);margin-top:2px}
-.task.done-task .task-title{text-decoration:line-through;color:var(--text-faint)}
-/* Docs */
-.doc-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-/* Profile */
-.prof-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.prof-sec-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:12px}
-.pf{margin-bottom:10px}
-.pf:last-child{margin-bottom:0}
-.pf-label{font-size:11px;color:var(--text-faint);margin-bottom:3px}
-.pf-value{font-size:14px;font-weight:500;color:var(--text)}
-.rbar-wrap{background:var(--bg-secondary);border-radius:4px;height:8px;overflow:hidden;margin-top:8px}
-.rbar{height:100%;background:var(--accent);border-radius:4px;transition:width .8s cubic-bezier(.4,0,.2,1)}
-/* AI modal */
-#ai-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
-#ai-modal.open{display:flex}
-.ai-inner{background:var(--bg-card);border-radius:var(--radius);padding:22px;max-width:560px;width:100%;border:1px solid var(--border)}
-.ai-title{font-size:16px;font-weight:600;margin-bottom:4px}
-.ai-sub{font-size:13px;color:var(--text-muted);margin-bottom:14px}
-.ai-out{background:var(--bg-secondary);border-radius:var(--radius-sm);padding:14px;font-size:13px;line-height:1.75;color:var(--text);min-height:120px;max-height:340px;overflow-y:auto;white-space:pre-wrap;word-break:break-word}
-.ai-loading{display:flex;align-items:center;gap:8px;color:var(--text-muted);font-size:13px}
-.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
-/* Misc */
-.page-title{font-size:20px;font-weight:600;margin-bottom:4px}
-.page-sub{font-size:13px;color:var(--text-muted);margin-bottom:16px}
-.sec-title{font-size:14px;font-weight:600;margin-bottom:10px;margin-top:18px}
-.empty{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:14px}
-.pbar-wrap{background:var(--bg-secondary);border-radius:4px;height:6px;overflow:hidden}
-.pbar{height:100%;background:var(--accent);border-radius:4px}
-.badge{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600}
-.badge-green{background:var(--accent-light);color:var(--accent-dark)}
-.badge-amber{background:var(--amber-light);color:#5a3200}
-.divider{height:1px;background:var(--border);margin:16px 0}
-.hint{font-size:12px;color:var(--text-faint);margin-top:6px}
-.install-bar{background:var(--accent-light);border:1px solid var(--accent);border-radius:var(--radius-sm);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;font-size:13px;color:var(--accent-dark)}
-@media(max-width:640px){.stats-grid{grid-template-columns:1fr 1fr}.pipeline-grid{grid-template-columns:1fr 1fr}.form-grid{grid-template-columns:1fr}.form-group.span2{grid-column:span 1}.prof-grid{grid-template-columns:1fr}.doc-row{grid-template-columns:1fr}}
+/* ── TOKENS ── */
+:root {
+  --ink: #0D0D0B;
+  --ink-2: #2A2A26;
+  --ink-3: #4A4A44;
+  --ink-4: #8A8A80;
+  --ink-5: #C4C4B8;
+  --paper: #F9F8F4;
+  --paper-2: #F0EFE8;
+  --paper-3: #E4E2D8;
+  --lime: #C8F04A;
+  --lime-dim: #9BBF2A;
+  --lime-bg: #1A2200;
+  --red: #FF4444;
+  --red-bg: #2A0000;
+  --amber: #F0A020;
+  --amber-bg: #2A1800;
+  --blue: #4A90FF;
+  --blue-bg: #001428;
+  --border: rgba(255,255,255,0.08);
+  --border-2: rgba(255,255,255,0.14);
+  --surface: #161614;
+  --surface-2: #1E1E1B;
+  --surface-3: #242420;
+  --r: 10px;
+  --r-sm: 6px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.4);
+  --font: 'Inter', system-ui, sans-serif;
+  --display: 'Syne', system-ui, sans-serif;
+}
+
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; font-family: var(--font); background: var(--ink); color: var(--paper); font-size: 15px; -webkit-font-smoothing: antialiased; }
+
+/* ── LAYOUT ── */
+#app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+/* ── HEADER ── */
+.hdr {
+  background: var(--ink);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 54px;
+  flex-shrink: 0;
+}
+.logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.logo-mark {
+  width: 28px; height: 28px;
+  background: var(--lime);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display);
+  font-size: 14px; font-weight: 800;
+  color: var(--ink);
+}
+.logo-name {
+  font-family: var(--display);
+  font-size: 16px; font-weight: 700;
+  color: var(--paper);
+  letter-spacing: -0.3px;
+}
+.logo-name span { color: var(--lime); }
+.hdr-right { display: flex; align-items: center; gap: 10px; }
+.lang-sel {
+  font-size: 12px; padding: 5px 9px;
+  border: 1px solid var(--border-2);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--ink-5);
+  cursor: pointer;
+  font-family: var(--font);
+}
+.lang-sel:focus { outline: none; border-color: var(--lime); }
+.user-chip {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 12px 5px 5px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: border-color .15s;
+}
+.user-chip:hover { border-color: var(--border-2); }
+.avatar {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--lime);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: var(--ink);
+}
+.user-name { font-size: 13px; color: var(--ink-5); }
+.sync-pip { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-4); transition: background .3s; }
+.sync-pip.syncing { background: var(--amber); animation: blink 1s infinite; }
+.sync-pip.synced { background: var(--lime); }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── NAV ── */
+.nav {
+  background: var(--ink);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex; gap: 0;
+  flex-shrink: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.nav::-webkit-scrollbar { display: none; }
+.ntab {
+  padding: 11px 16px;
+  font-size: 13px; font-weight: 500;
+  color: var(--ink-4);
+  border: none; background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+  transition: color .15s;
+  letter-spacing: -0.1px;
+}
+.ntab:hover { color: var(--ink-5); }
+.ntab.active { color: var(--lime); border-bottom-color: var(--lime); }
+
+/* ── MAIN ── */
+.main { flex: 1; overflow-y: auto; padding: 24px; background: var(--ink); }
+.page { display: none; max-width: 960px; margin: 0 auto; }
+.page.active { display: block; }
+
+/* ── ONBOARDING ── */
+#onboarding {
+  position: fixed; inset: 0;
+  background: var(--ink);
+  z-index: 100; overflow-y: auto;
+  display: flex; align-items: flex-start; justify-content: center;
+  padding: 48px 20px;
+}
+.ob-wrap { max-width: 520px; width: 100%; }
+.ob-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 40px; }
+.step { display: none; }
+.step.active { display: block; }
+.dots { display: flex; gap: 6px; margin-bottom: 32px; }
+.dot { width: 20px; height: 3px; border-radius: 2px; background: var(--surface-3); transition: background .3s; }
+.dot.done { background: var(--lime); }
+.ob-title { font-family: var(--display); font-size: 26px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px; line-height: 1.15; }
+.ob-sub { font-size: 14px; color: var(--ink-4); margin-bottom: 28px; line-height: 1.6; }
+.feat-list { display: flex; flex-direction: column; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 18px 20px; margin-bottom: 28px; }
+.feat { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-5); }
+.feat-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--lime); flex-shrink: 0; }
+
+/* ── FORMS ── */
+.fg { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+.fg.s1 { grid-template-columns: 1fr; }
+.fgrp { display: flex; flex-direction: column; gap: 5px; }
+.fgrp.s2 { grid-column: span 2; }
+.flbl { font-size: 11px; font-weight: 600; color: var(--ink-4); text-transform: uppercase; letter-spacing: .6px; }
+input, select {
+  padding: 10px 12px;
+  border: 1px solid var(--border-2);
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  color: var(--paper);
+  font-size: 14px; font-family: var(--font);
+  outline: none;
+  transition: border-color .15s;
+  width: 100%;
+}
+input:focus, select:focus { border-color: var(--lime); }
+select option { background: var(--surface-2); }
+.cbgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cbi {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  cursor: pointer; font-size: 13px; color: var(--ink-5);
+  transition: all .15s; user-select: none;
+}
+.cbi:hover { border-color: var(--border-2); color: var(--paper); }
+.cbi.checked { background: var(--lime-bg); border-color: var(--lime); color: var(--lime); }
+.btn-row { display: flex; gap: 10px; justify-content: flex-end; }
+
+/* ── BUTTONS ── */
+.btn {
+  padding: 10px 20px;
+  border-radius: var(--r-sm);
+  font-size: 14px; font-weight: 600;
+  cursor: pointer; border: none;
+  display: inline-flex; align-items: center; gap: 7px;
+  transition: all .15s; text-decoration: none;
+  font-family: var(--font); letter-spacing: -0.1px;
+}
+.btn-lime { background: var(--lime); color: var(--ink); }
+.btn-lime:hover { background: #d4f84a; }
+.btn-ghost { background: var(--surface-2); color: var(--ink-5); border: 1px solid var(--border); }
+.btn-ghost:hover { border-color: var(--border-2); color: var(--paper); }
+.btn-ai {
+  background: var(--lime-bg); color: var(--lime);
+  border: 1px solid rgba(200,240,74,.25);
+  font-size: 13px; padding: 7px 14px;
+}
+.btn-ai:hover { background: rgba(200,240,74,.15); }
+.btn-sm { font-size: 12px; padding: 5px 11px; }
+
+/* ── WIN BANNER ── */
+.win-banner {
+  background: linear-gradient(135deg, var(--surface) 0%, var(--surface-2) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 22px 26px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+  position: relative; overflow: hidden;
+}
+.win-banner::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--lime), transparent);
+  opacity: .4;
+}
+.wb-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--ink-4); margin-bottom: 6px; }
+.wb-amount { font-family: var(--display); font-size: 36px; font-weight: 800; color: var(--lime); letter-spacing: -1px; line-height: 1; }
+.wb-sub { font-size: 13px; color: var(--ink-4); margin-top: 6px; }
+.wb-icon { font-size: 36px; opacity: .6; }
+
+/* ── STATS ── */
+.stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 20px; }
+.stat {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 14px 16px;
+}
+.stat-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--ink-4); margin-bottom: 6px; font-weight: 600; }
+.stat-val { font-family: var(--display); font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+.lime { color: var(--lime); }
+.red { color: var(--red); }
+.amber { color: var(--amber); }
+
+/* ── SECTION TITLE ── */
+.sec-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; margin-top: 22px; }
+.sec-title { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--ink-4); }
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+/* ── SCHOLARSHIP CARDS ── */
+.sch {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  position: relative;
+  transition: border-color .15s;
+}
+.sch:hover { border-color: var(--border-2); }
+.sch.urgent { border-left: 2px solid var(--red); }
+.sch-hd { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.sch-title { font-size: 14px; font-weight: 600; color: var(--paper); }
+.sch-provider { font-size: 12px; color: var(--ink-4); margin-top: 2px; }
+.score {
+  width: 42px; height: 42px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; border: 1.5px solid; flex-shrink: 0;
+}
+.score.hi { background: var(--lime-bg); color: var(--lime); border-color: rgba(200,240,74,.4); }
+.score.md { background: var(--amber-bg); color: var(--amber); border-color: rgba(240,160,32,.4); }
+.score.lo { background: var(--surface-2); color: var(--ink-4); border-color: var(--border); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.tag {
+  font-size: 11px; padding: 3px 9px; border-radius: 20px;
+  font-weight: 500; border: 1px solid;
+}
+.tag-money { background: var(--lime-bg); color: var(--lime); border-color: rgba(200,240,74,.2); }
+.tag-dl { background: var(--surface-2); color: var(--ink-4); border-color: var(--border); }
+.tag-urg { background: var(--red-bg); color: var(--red); border-color: rgba(255,68,68,.2); }
+.tag-field { background: var(--blue-bg); color: var(--blue); border-color: rgba(74,144,255,.2); }
+.tag-ne { background: var(--amber-bg); color: var(--amber); border-color: rgba(240,160,32,.2); }
+.sch-desc { font-size: 12px; color: var(--ink-4); margin-bottom: 10px; line-height: 1.55; }
+.reasons { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 10px; border-top: 1px solid var(--border); margin-bottom: 10px; }
+.reason { font-size: 11px; color: var(--ink-4); display: flex; align-items: center; gap: 4px; }
+.reason::before { content: "✓"; color: var(--lime); font-weight: 700; }
+.sch-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.urg-pip { position: absolute; top: 10px; right: 14px; font-size: 10px; background: var(--red-bg); color: var(--red); padding: 2px 8px; border-radius: 10px; font-weight: 600; border: 1px solid rgba(255,68,68,.2); }
+.status-sel {
+  font-size: 12px; padding: 5px 9px;
+  border-radius: var(--r-sm); border: 1px solid var(--border);
+  background: var(--surface-2); color: var(--ink-5);
+  cursor: pointer; font-family: var(--font);
+}
+.status-sel:focus { outline: none; border-color: var(--lime); }
+
+/* ── FILTERS ── */
+.filters { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 16px; }
+.fbtn {
+  padding: 5px 13px; border: 1px solid var(--border);
+  border-radius: 20px; background: var(--surface);
+  font-size: 12px; color: var(--ink-4);
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+  font-family: var(--font); font-weight: 500;
+}
+.fbtn:hover { border-color: var(--border-2); color: var(--ink-5); }
+.fbtn.active { background: var(--lime); border-color: var(--lime); color: var(--ink); font-weight: 600; }
+
+/* ── PIPELINE ── */
+.pcols { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 16px; }
+.pcol { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 13px; min-height: 180px; }
+.pcol-hd { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--ink-4); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+.pcol-count { background: var(--surface-2); color: var(--ink-4); font-size: 10px; padding: 2px 7px; border-radius: 10px; }
+.pi { background: var(--surface-2); border-radius: var(--r-sm); padding: 8px 10px; margin-bottom: 6px; border-left: 2px solid; }
+.pi-title { font-size: 12px; font-weight: 500; color: var(--paper); }
+.pi-amt { font-size: 11px; color: var(--ink-4); margin-top: 2px; }
+.pi-not { border-left-color: var(--ink-4); }
+.pi-prog { border-left-color: var(--amber); }
+.pi-sub { border-left-color: var(--blue); }
+.pi-won { border-left-color: var(--lime); }
+.pi-lost { border-left-color: var(--red); opacity: .5; }
+
+/* ── PLANNER ── */
+.plan-sec { margin-bottom: 16px; }
+.plan-lbl { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--ink-4); margin-bottom: 8px; display: flex; align-items: center; gap: 7px; }
+.task {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 11px 14px;
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 6px; transition: border-color .15s;
+}
+.task:hover { border-color: var(--border-2); }
+.chk {
+  width: 20px; height: 20px; border: 1.5px solid var(--border-2);
+  border-radius: 4px; flex-shrink: 0;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all .15s; margin-top: 1px; font-size: 11px;
+}
+.chk:hover { border-color: var(--lime); }
+.chk.done { background: var(--lime); border-color: var(--lime); color: var(--ink); font-weight: 700; }
+.task-title { font-size: 13px; font-weight: 500; color: var(--paper); }
+.task-meta { font-size: 11px; color: var(--ink-4); margin-top: 2px; }
+.task.done-task .task-title { text-decoration: line-through; color: var(--ink-4); }
+
+/* ── DOCS ── */
+.doc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+
+/* ── PROFILE ── */
+.pgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.psec-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--ink-4); margin-bottom: 12px; }
+.pf { margin-bottom: 10px; }
+.pf:last-child { margin-bottom: 0; }
+.pf-lbl { font-size: 11px; color: var(--ink-4); margin-bottom: 3px; }
+.pf-val { font-size: 14px; font-weight: 500; color: var(--paper); }
+.rbar-wrap { background: var(--surface-3); border-radius: 3px; height: 4px; overflow: hidden; margin-top: 8px; }
+.rbar { height: 100%; background: var(--lime); border-radius: 3px; transition: width .8s cubic-bezier(.4,0,.2,1); }
+
+/* ── CARD ── */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; }
+.card + .card { margin-top: 10px; }
+
+/* ── AI MODAL ── */
+#ai-modal { position: fixed; inset: 0; background: rgba(0,0,0,.7); z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
+#ai-modal.open { display: flex; }
+.ai-box { background: var(--surface); border: 1px solid var(--border-2); border-radius: var(--r); padding: 22px; max-width: 560px; width: 100%; }
+.ai-title { font-family: var(--display); font-size: 18px; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.3px; }
+.ai-sub { font-size: 13px; color: var(--ink-4); margin-bottom: 14px; }
+.ai-out {
+  background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: var(--r-sm); padding: 16px;
+  font-size: 13px; line-height: 1.75; color: var(--paper);
+  min-height: 120px; max-height: 360px; overflow-y: auto;
+  white-space: pre-wrap; word-break: break-word;
+  font-family: var(--font);
+}
+.ai-loading { display: flex; align-items: center; gap: 10px; color: var(--ink-4); font-size: 13px; }
+.spin { width: 16px; height: 16px; border: 2px solid var(--border-2); border-top-color: var(--lime); border-radius: 50%; animation: sp .7s linear infinite; flex-shrink: 0; }
+@keyframes sp { to { transform: rotate(360deg); } }
+
+/* ── INSTALL BANNER ── */
+.install-bar {
+  background: var(--lime-bg); border: 1px solid rgba(200,240,74,.2);
+  border-radius: var(--r-sm); padding: 11px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px; font-size: 13px; color: var(--lime);
+}
+
+/* ── PROGRESS BAR ── */
+.pbar-wrap { background: var(--surface-3); border-radius: 3px; height: 4px; overflow: hidden; }
+.pbar { height: 100%; background: var(--lime); border-radius: 3px; }
+
+/* ── BADGE ── */
+.badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600; border: 1px solid; }
+.badge-ok { background: var(--lime-bg); color: var(--lime); border-color: rgba(200,240,74,.2); }
+.badge-warn { background: var(--amber-bg); color: var(--amber); border-color: rgba(240,160,32,.2); }
+
+/* ── HINT ── */
+.hint { font-size: 12px; color: var(--ink-4); margin-top: 6px; }
+.empty { text-align: center; padding: 40px 20px; color: var(--ink-4); font-size: 14px; }
+
+/* ── PAGE TITLES ── */
+.page-title { font-family: var(--display); font-size: 22px; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.4px; }
+.page-sub { font-size: 13px; color: var(--ink-4); margin-bottom: 18px; }
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  .stats{grid-template-columns:1fr 1fr}
+  .pcols{grid-template-columns:1fr 1fr}
+  .fg{grid-template-columns:1fr}
+  .fgrp.s2{grid-column:span 1}
+  .pgrid{grid-template-columns:1fr}
+  .doc-grid{grid-template-columns:1fr}
+  .hdr{padding:0 16px}
+  .main{padding:16px}
+  .nav{padding:0 16px}
+}
 </style>
 </head>
 <body>
 
-<!-- ═══════════════ ONBOARDING ═══════════════ -->
+<!-- ════ ONBOARDING ════ -->
 <div id="onboarding">
-  <div class="onboarding-inner">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:32px;">
-      <div class="logo-icon" style="width:36px;height:36px;font-size:18px;">S</div>
-      <div class="logo-text" style="font-size:18px;">Scholar<span>Match</span> AI</div>
-      <div style="margin-left:auto;"><select class="lang-select" onchange="setLang(this.value)" id="ob-lang">
+<div class="ob-wrap">
+  <div class="ob-logo">
+    <div class="logo-mark">S</div>
+    <div class="logo-name">Scholar<span>Match</span></div>
+    <div style="margin-left:auto">
+      <select class="lang-sel" onchange="setLang(this.value)" id="ob-lang">
         <option value="en">🇬🇧 English</option>
         <option value="de">🇩🇪 Deutsch</option>
         <option value="es">🇪🇸 Español</option>
         <option value="tr">🇹🇷 Türkçe</option>
         <option value="nl">🇳🇱 Nederlands</option>
         <option value="bg">🇧🇬 Български</option>
-      </select></div>
-    </div>
-    <div class="step-indicator" id="step-dots"></div>
-
-    <!-- Step 1 -->
-    <div class="step active" id="step-1">
-      <div class="ob-title" data-i18n="ob1_title">Find scholarships you actually qualify for</div>
-      <div class="ob-sub" data-i18n="ob1_sub">Answer 3 quick questions. ScholarMatch ranks every opportunity by your real eligibility.</div>
-      <div style="background:var(--bg-secondary);border-radius:var(--radius);padding:16px 18px;margin-bottom:24px;">
-        <div style="display:flex;flex-direction:column;gap:11px;">
-          <div style="display:flex;align-items:center;gap:10px;font-size:13px;"><span style="color:var(--accent);font-weight:700;font-size:17px;">✓</span><span data-i18n="feat1">Personalized match score for each scholarship</span></div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:13px;"><span style="color:var(--accent);font-weight:700;font-size:17px;">✓</span><span data-i18n="feat2">Deadline tracking and weekly action plans</span></div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:13px;"><span style="color:var(--accent);font-weight:700;font-size:17px;">✓</span><span data-i18n="feat3">AI essay outlines on demand</span></div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:13px;"><span style="color:var(--accent);font-weight:700;font-size:17px;">✓</span><span data-i18n="feat4">Works on every device — data synced to cloud</span></div>
-        </div>
-      </div>
-      <button class="btn btn-primary" onclick="nextStep()" style="width:100%;justify-content:center;padding:13px;" data-i18n="get_started">Get started →</button>
-    </div>
-
-    <!-- Step 2 -->
-    <div class="step" id="step-2">
-      <div class="ob-title" data-i18n="ob2_title">Personal information</div>
-      <div class="ob-sub" data-i18n="ob2_sub">Used to filter scholarships by location and citizenship.</div>
-      <div class="form-grid">
-        <div class="form-group span2"><label class="field-label" data-i18n="lbl_name">Full name</label><input type="text" id="p-name" placeholder="Alex Johnson"></div>
-        <div class="form-group"><label class="field-label" data-i18n="lbl_country">Country</label>
-          <select id="p-country">
-            <option value="US">United States</option><option value="CA">Canada</option><option value="UK">United Kingdom</option><option value="AU">Australia</option><option value="DE">Germany</option><option value="NL">Netherlands</option><option value="ES">Spain</option><option value="TR">Turkey</option><option value="BG">Bulgaria</option><option value="OTHER">Other</option>
-          </select>
-        </div>
-        <div class="form-group"><label class="field-label" data-i18n="lbl_region">State / Region</label><input type="text" id="p-state" placeholder="California"></div>
-        <div class="form-group"><label class="field-label" data-i18n="lbl_citizenship">Citizenship</label>
-          <select id="p-citizenship">
-            <option value="US">US Citizen</option><option value="PERMANENT">Permanent Resident</option><option value="INTERNATIONAL">International Student</option><option value="EU">EU Citizen</option>
-          </select>
-        </div>
-        <div class="form-group"><label class="field-label" data-i18n="lbl_dob">Date of birth</label><input type="date" id="p-dob"></div>
-      </div>
-      <div class="btn-row"><button class="btn btn-secondary" onclick="prevStep()" data-i18n="back">Back</button><button class="btn btn-primary" onclick="nextStep()" data-i18n="continue">Continue →</button></div>
-    </div>
-
-    <!-- Step 3 -->
-    <div class="step" id="step-3">
-      <div class="ob-title" data-i18n="ob3_title">Academic profile</div>
-      <div class="ob-sub" data-i18n="ob3_sub">Your GPA and major are the most important matching factors.</div>
-      <div class="form-grid">
-        <div class="form-group span2"><label class="field-label" data-i18n="lbl_school">School / University</label><input type="text" id="p-school" placeholder="UC Berkeley"></div>
-        <div class="form-group"><label class="field-label" data-i18n="lbl_year">Year</label>
-          <select id="p-year">
-            <option value="HS3" data-i18n="yr_hs3">High School — 11th</option><option value="HS4" data-i18n="yr_hs4">High School — 12th</option><option value="UG1" data-i18n="yr_ug1">College — Freshman</option><option value="UG2" data-i18n="yr_ug2">College — Sophomore</option><option value="UG3" data-i18n="yr_ug3">College — Junior</option><option value="UG4" data-i18n="yr_ug4">College — Senior</option><option value="GRAD" data-i18n="yr_grad">Graduate Student</option>
-          </select>
-        </div>
-        <div class="form-group"><label class="field-label" data-i18n="lbl_gpa">GPA (4.0 scale)</label><input type="number" id="p-gpa" placeholder="3.8" min="0" max="4.0" step="0.1"></div>
-        <div class="form-group span2"><label class="field-label" data-i18n="lbl_major">Major / Field of study</label>
-          <select id="p-major">
-            <option value="CS">Computer Science</option><option value="ENG">Engineering</option><option value="MED">Medicine / Pre-Med</option><option value="BIO">Biology</option><option value="BUS">Business</option><option value="LAW">Law</option><option value="ARTS">Arts / Humanities</option><option value="EDUC">Education</option><option value="SOC">Social Sciences</option><option value="MATH">Mathematics</option><option value="OTHER">Other</option>
-          </select>
-        </div>
-      </div>
-      <div class="btn-row"><button class="btn btn-secondary" onclick="prevStep()" data-i18n="back">Back</button><button class="btn btn-primary" onclick="nextStep()" data-i18n="continue">Continue →</button></div>
-    </div>
-
-    <!-- Step 4 -->
-    <div class="step" id="step-4">
-      <div class="ob-title" data-i18n="ob4_title">Activities & background</div>
-      <div class="ob-sub" data-i18n="ob4_sub">Each item unlocks more scholarships.</div>
-      <div class="form-grid single" style="margin-bottom:16px;">
-        <div class="form-group">
-          <label class="field-label" data-i18n="lbl_activities">Activities (select all that apply)</label>
-          <div class="checkbox-grid" id="act-grid">
-            <label class="cb-item"><input type="checkbox" value="leadership"> 🏅 <span data-i18n="act_leadership">Leadership</span></label>
-            <label class="cb-item"><input type="checkbox" value="volunteer"> 🤝 <span data-i18n="act_volunteer">Volunteering</span></label>
-            <label class="cb-item"><input type="checkbox" value="research"> 🔬 <span data-i18n="act_research">Research</span></label>
-            <label class="cb-item"><input type="checkbox" value="sports"> ⚽ <span data-i18n="act_sports">Sports</span></label>
-            <label class="cb-item"><input type="checkbox" value="arts"> 🎨 <span data-i18n="act_arts">Arts / Music</span></label>
-            <label class="cb-item"><input type="checkbox" value="competition"> 🏆 <span data-i18n="act_competition">Competitions</span></label>
-            <label class="cb-item"><input type="checkbox" value="entrepreneurship"> 🚀 <span data-i18n="act_entre">Entrepreneurship</span></label>
-            <label class="cb-item"><input type="checkbox" value="community"> 🌍 <span data-i18n="act_community">Community service</span></label>
-          </div>
-        </div>
-      </div>
-      <div class="form-grid">
-        <div class="form-group"><label class="field-label" data-i18n="lbl_financial">Financial need</label>
-          <select id="p-financial"><option value="high" data-i18n="fin_high">High need</option><option value="medium" data-i18n="fin_med">Medium need</option><option value="low" data-i18n="fin_low">Low / No need</option></select>
-        </div>
-        <div class="form-group"><label class="field-label" data-i18n="lbl_firstgen">First-generation student?</label>
-          <select id="p-firstgen"><option value="yes" data-i18n="yes">Yes</option><option value="no" data-i18n="no">No</option></select>
-        </div>
-      </div>
-      <div class="btn-row"><button class="btn btn-secondary" onclick="prevStep()" data-i18n="back">Back</button><button class="btn btn-primary" onclick="finishOnboarding()" data-i18n="see_matches">See my matches →</button></div>
+      </select>
     </div>
   </div>
+  <div class="dots" id="dots"></div>
+
+  <!-- Step 1 -->
+  <div class="step active" id="step-1">
+    <div class="ob-title" data-i18n="ob1_title">Find scholarships you actually qualify for</div>
+    <div class="ob-sub" data-i18n="ob1_sub">Answer 3 quick questions. ScholarMatch ranks every opportunity by your real eligibility — not keywords.</div>
+    <div class="feat-list">
+      <div class="feat"><div class="feat-dot"></div><span data-i18n="feat1">Personalized match score for each scholarship</span></div>
+      <div class="feat"><div class="feat-dot"></div><span data-i18n="feat2">Deadline tracking and weekly action plans</span></div>
+      <div class="feat"><div class="feat-dot"></div><span data-i18n="feat3">AI essay outlines on demand</span></div>
+      <div class="feat"><div class="feat-dot"></div><span data-i18n="feat4">Works on every device — data synced to cloud</span></div>
+    </div>
+    <button class="btn btn-lime" onclick="nextStep()" style="width:100%;justify-content:center;padding:13px;font-size:15px;" data-i18n="get_started">Get started →</button>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="step" id="step-2">
+    <div class="ob-title" data-i18n="ob2_title">Personal information</div>
+    <div class="ob-sub" data-i18n="ob2_sub">Used to filter scholarships by location and citizenship.</div>
+    <div class="fg">
+      <div class="fgrp s2"><label class="flbl" data-i18n="lbl_name">Full name</label><input type="text" id="p-name" placeholder="Alex Johnson"></div>
+      <div class="fgrp"><label class="flbl" data-i18n="lbl_country">Country</label>
+        <select id="p-country"><option value="US">United States</option><option value="CA">Canada</option><option value="UK">United Kingdom</option><option value="AU">Australia</option><option value="DE">Germany</option><option value="NL">Netherlands</option><option value="ES">Spain</option><option value="TR">Turkey</option><option value="BG">Bulgaria</option><option value="OTHER">Other</option></select>
+      </div>
+      <div class="fgrp"><label class="flbl" data-i18n="lbl_region">State / Region</label><input type="text" id="p-state" placeholder="California"></div>
+      <div class="fgrp"><label class="flbl" data-i18n="lbl_citizenship">Citizenship</label>
+        <select id="p-citizenship"><option value="US">US Citizen</option><option value="PERMANENT">Permanent Resident</option><option value="INTERNATIONAL">International Student</option><option value="EU">EU Citizen</option></select>
+      </div>
+      <div class="fgrp"><label class="flbl" data-i18n="lbl_dob">Date of birth</label><input type="date" id="p-dob"></div>
+    </div>
+    <div class="btn-row"><button class="btn btn-ghost" onclick="prevStep()" data-i18n="back">Back</button><button class="btn btn-lime" onclick="nextStep()" data-i18n="continue">Continue →</button></div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="step" id="step-3">
+    <div class="ob-title" data-i18n="ob3_title">Academic profile</div>
+    <div class="ob-sub" data-i18n="ob3_sub">Your GPA and major are the most important matching factors.</div>
+    <div class="fg">
+      <div class="fgrp s2"><label class="flbl" data-i18n="lbl_school">School / University</label><input type="text" id="p-school" placeholder="UC Berkeley"></div>
+      <div class="fgrp"><label class="flbl" data-i18n="lbl_year">Year</label>
+        <select id="p-year"><option value="HS3">High School — 11th</option><option value="HS4">High School — 12th</option><option value="UG1">College — Freshman</option><option value="UG2">College — Sophomore</option><option value="UG3">College — Junior</option><option value="UG4">College — Senior</option><option value="GRAD">Graduate Student</option></select>
+      </div>
+      <div class="fgrp"><label class="flbl" data-i18n="lbl_gpa">GPA (4.0 scale)</label><input type="number" id="p-gpa" placeholder="3.8" min="0" max="4.0" step="0.1"></div>
+      <div class="fgrp s2"><label class="flbl" data-i18n="lbl_major">Major</label>
+        <select id="p-major"><option value="CS">Computer Science</option><option value="ENG">Engineering</option><option value="MED">Medicine</option><option value="BIO">Biology</option><option value="BUS">Business</option><option value="LAW">Law</option><option value="ARTS">Arts / Humanities</option><option value="EDUC">Education</option><option value="SOC">Social Sciences</option><option value="MATH">Mathematics</option><option value="OTHER">Other</option></select>
+      </div>
+    </div>
+    <div class="btn-row"><button class="btn btn-ghost" onclick="prevStep()" data-i18n="back">Back</button><button class="btn btn-lime" onclick="nextStep()" data-i18n="continue">Continue →</button></div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="step" id="step-4">
+    <div class="ob-title" data-i18n="ob4_title">Activities & background</div>
+    <div class="ob-sub" data-i18n="ob4_sub">Each item unlocks more scholarships.</div>
+    <div class="fg s1" style="margin-bottom:16px">
+      <div class="fgrp"><label class="flbl" data-i18n="lbl_activities">Activities</label>
+        <div class="cbgrid" id="act-grid">
+          <label class="cbi"><input type="checkbox" value="leadership" style="display:none"> 🏅 <span data-i18n="act_leadership">Leadership</span></label>
+          <label class="cbi"><input type="checkbox" value="volunteer" style="display:none"> 🤝 <span data-i18n="act_volunteer">Volunteering</span></label>
+          <label class="cbi"><input type="checkbox" value="research" style="display:none"> 🔬 <span data-i18n="act_research">Research</span></label>
+          <label class="cbi"><input type="checkbox" value="sports" style="display:none"> ⚽ <span data-i18n="act_sports">Sports</span></label>
+          <label class="cbi"><input type="checkbox" value="arts" style="display:none"> 🎨 <span data-i18n="act_arts">Arts / Music</span></label>
+          <label class="cbi"><input type="checkbox" value="competition" style="display:none"> 🏆 <span data-i18n="act_competition">Competitions</span></label>
+          <label class="cbi"><input type="checkbox" value="entrepreneurship" style="display:none"> 🚀 <span data-i18n="act_entre">Entrepreneurship</span></label>
+          <label class="cbi"><input type="checkbox" value="community" style="display:none"> 🌍 <span data-i18n="act_community">Community service</span></label>
+        </div>
+      </div>
+    </div>
+    <div class="fg">
+      <div class="fgrp"><label class="flbl" data-i18n="lbl_financial">Financial need</label>
+        <select id="p-financial"><option value="high" data-i18n="fin_high">High need</option><option value="medium" data-i18n="fin_med">Medium need</option><option value="low" data-i18n="fin_low">Low / No need</option></select>
+      </div>
+      <div class="fgrp"><label class="flbl" data-i18n="lbl_firstgen">First-generation student?</label>
+        <select id="p-firstgen"><option value="yes" data-i18n="yes">Yes</option><option value="no" data-i18n="no">No</option></select>
+      </div>
+    </div>
+    <div class="btn-row"><button class="btn btn-ghost" onclick="prevStep()" data-i18n="back">Back</button><button class="btn btn-lime" onclick="finishOnboarding()" data-i18n="see_matches">See my matches →</button></div>
+  </div>
+</div>
 </div>
 
-<!-- ═══════════════ MAIN APP ═══════════════ -->
-<div id="app" style="display:none;">
-  <div class="header">
-    <a class="logo" href="#" onclick="return false;"><div class="logo-icon">S</div><div class="logo-text">Scholar<span>Match</span></div></a>
-    <div class="header-right">
-      <div class="sync-dot" id="sync-dot" title="Sync status"></div>
-      <select class="lang-select" onchange="setLang(this.value)" id="app-lang">
+<!-- ════ APP ════ -->
+<div id="app" style="display:none">
+  <div class="hdr">
+    <a class="logo" href="#" onclick="return false">
+      <div class="logo-mark">S</div>
+      <div class="logo-name">Scholar<span>Match</span></div>
+    </a>
+    <div class="hdr-right">
+      <div class="sync-pip" id="sync-pip"></div>
+      <select class="lang-sel" onchange="setLang(this.value)" id="app-lang">
         <option value="en">🇬🇧 EN</option><option value="de">🇩🇪 DE</option><option value="es">🇪🇸 ES</option><option value="tr">🇹🇷 TR</option><option value="nl">🇳🇱 NL</option><option value="bg">🇧🇬 BG</option>
       </select>
-      <div class="profile-chip" onclick="showTab('profile')">
-        <div class="profile-avatar" id="hdr-avatar">A</div>
-        <span id="hdr-name">Student</span>
+      <div class="user-chip" onclick="showTab('profile')">
+        <div class="avatar" id="hdr-av">A</div>
+        <span class="user-name" id="hdr-nm">Student</span>
       </div>
     </div>
   </div>
   <div class="nav">
-    <button class="nav-tab active" onclick="showTab('dashboard')" id="tab-dashboard" data-i18n="tab_dashboard">📊 Dashboard</button>
-    <button class="nav-tab" onclick="showTab('matches')" id="tab-matches" data-i18n="tab_matches">🎯 Matches</button>
-    <button class="nav-tab" onclick="showTab('pipeline')" id="tab-pipeline" data-i18n="tab_pipeline">📋 Pipeline</button>
-    <button class="nav-tab" onclick="showTab('planner')" id="tab-planner" data-i18n="tab_planner">📅 Planner</button>
-    <button class="nav-tab" onclick="showTab('docs')" id="tab-docs" data-i18n="tab_docs">✅ Documents</button>
-    <button class="nav-tab" onclick="showTab('profile')" id="tab-profile" data-i18n="tab_profile">👤 Profile</button>
+    <button class="ntab active" id="tab-dashboard" onclick="showTab('dashboard')" data-i18n="tab_dashboard">Dashboard</button>
+    <button class="ntab" id="tab-matches" onclick="showTab('matches')" data-i18n="tab_matches">Matches</button>
+    <button class="ntab" id="tab-pipeline" onclick="showTab('pipeline')" data-i18n="tab_pipeline">Pipeline</button>
+    <button class="ntab" id="tab-planner" onclick="showTab('planner')" data-i18n="tab_planner">Planner</button>
+    <button class="ntab" id="tab-docs" onclick="showTab('docs')" data-i18n="tab_docs">Documents</button>
+    <button class="ntab" id="tab-profile" onclick="showTab('profile')" data-i18n="tab_profile">Profile</button>
   </div>
   <div class="main">
 
@@ -315,36 +555,38 @@ input:focus,select:focus{border-color:var(--accent)}
     <div class="page active" id="page-dashboard">
       <div id="install-wrap"></div>
       <div class="win-banner">
-        <div><div class="wb-label" data-i18n="total_value">Total matched scholarship value</div><div class="wb-amount" id="wb-amt">$0</div><div class="wb-sub" id="wb-sub">—</div></div>
-        <div style="font-size:32px;opacity:.8;">🏆</div>
+        <div>
+          <div class="wb-label" data-i18n="total_value">Total matched value</div>
+          <div class="wb-amount" id="wb-amt">$0</div>
+          <div class="wb-sub" id="wb-sub">—</div>
+        </div>
+        <div class="wb-icon">🏆</div>
       </div>
-      <div class="stats-grid">
-        <div class="stat"><div class="s-label" data-i18n="stat_matched">Matched</div><div class="s-value green" id="st-matched">0</div></div>
-        <div class="stat"><div class="s-label" data-i18n="stat_urgent">Urgent</div><div class="s-value red" id="st-urgent">0</div></div>
-        <div class="stat"><div class="s-label" data-i18n="stat_avg">Avg score</div><div class="s-value green" id="st-avg">0%</div></div>
-        <div class="stat"><div class="s-label" data-i18n="stat_profile">Profile</div><div class="s-value amber" id="st-profile">0%</div></div>
+      <div class="stats">
+        <div class="stat"><div class="stat-lbl" data-i18n="stat_matched">Matched</div><div class="stat-val lime" id="st-matched">0</div></div>
+        <div class="stat"><div class="stat-lbl" data-i18n="stat_urgent">Urgent</div><div class="stat-val red" id="st-urgent">0</div></div>
+        <div class="stat"><div class="stat-lbl" data-i18n="stat_avg">Avg score</div><div class="stat-val lime" id="st-avg">0%</div></div>
+        <div class="stat"><div class="stat-lbl" data-i18n="stat_profile">Profile</div><div class="stat-val amber" id="st-profile">0%</div></div>
       </div>
-      <div class="sec-title" data-i18n="top_opps">Top opportunities</div>
+      <div class="sec-hd">
+        <div class="sec-title" data-i18n="top_opps">Top opportunities</div>
+        <button class="btn btn-ai btn-sm" onclick="openAI('strategy')">✦ <span data-i18n="gen_strategy">Generate strategy</span></button>
+      </div>
       <div id="dash-top"></div>
-      <div class="divider"></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <div class="sec-title" style="margin:0;" data-i18n="ai_strategy">AI Strategy</div>
-        <button class="btn btn-ai" onclick="openAI('strategy')">✨ <span data-i18n="gen_strategy">Generate strategy</span></button>
-      </div>
-      <div class="card" id="ai-placeholder" style="font-size:13px;color:var(--text-muted);" data-i18n="ai_placeholder">Click "Generate strategy" to get a personalized action plan.</div>
+      <div id="ai-strategy-box" style="margin-top:10px;display:none"></div>
     </div>
 
     <!-- MATCHES -->
     <div class="page" id="page-matches">
-      <div class="page-title" data-i18n="tab_matches">Matched scholarships</div>
+      <div class="page-title" data-i18n="tab_matches">Matches</div>
       <div class="page-sub" id="matches-sub"></div>
-      <div class="filter-bar">
-        <button class="filter-btn active" onclick="setFilter('all',this)" data-i18n="filter_all">All</button>
-        <button class="filter-btn" onclick="setFilter('urgent',this)" data-i18n="filter_urgent">🔴 Urgent</button>
-        <button class="filter-btn" onclick="setFilter('high',this)" data-i18n="filter_high">⭐ 85%+</button>
-        <button class="filter-btn" onclick="setFilter('noessay',this)" data-i18n="filter_noessay">✏️ No essay</button>
-        <button class="filter-btn" onclick="setFilter('need',this)" data-i18n="filter_need">💰 Need-based</button>
-        <button class="filter-btn" onclick="setFilter('intl',this)" data-i18n="filter_intl">🌍 International</button>
+      <div class="filters">
+        <button class="fbtn active" onclick="setFilter('all',this)" data-i18n="filter_all">All</button>
+        <button class="fbtn" onclick="setFilter('urgent',this)" data-i18n="filter_urgent">🔴 Urgent</button>
+        <button class="fbtn" onclick="setFilter('high',this)" data-i18n="filter_high">⭐ 85%+</button>
+        <button class="fbtn" onclick="setFilter('noessay',this)" data-i18n="filter_noessay">No essay</button>
+        <button class="fbtn" onclick="setFilter('need',this)" data-i18n="filter_need">Need-based</button>
+        <button class="fbtn" onclick="setFilter('intl',this)" data-i18n="filter_intl">International</button>
       </div>
       <div id="matches-list"></div>
     </div>
@@ -353,17 +595,17 @@ input:focus,select:focus{border-color:var(--accent)}
     <div class="page" id="page-pipeline">
       <div class="page-title" data-i18n="tab_pipeline">Pipeline</div>
       <div class="page-sub" data-i18n="pipeline_sub">Track every application from discovery to decision</div>
-      <div class="pipeline-grid">
-        <div class="pcol"><div class="pcol-header"><span data-i18n="pl_not">Not started</span><span class="pcol-count" id="pc-not">0</span></div><div id="pl-not"></div></div>
-        <div class="pcol"><div class="pcol-header"><span data-i18n="pl_prog">In progress</span><span class="pcol-count" id="pc-prog">0</span></div><div id="pl-prog"></div></div>
-        <div class="pcol"><div class="pcol-header"><span data-i18n="pl_sub">Submitted</span><span class="pcol-count" id="pc-sub">0</span></div><div id="pl-sub"></div></div>
-        <div class="pcol"><div class="pcol-header"><span data-i18n="pl_won">Won / Lost</span><span class="pcol-count" id="pc-won">0</span></div><div id="pl-won"></div></div>
+      <div class="pcols">
+        <div class="pcol"><div class="pcol-hd"><span data-i18n="pl_not">Not started</span><span class="pcol-count" id="pc-not">0</span></div><div id="pl-not"></div></div>
+        <div class="pcol"><div class="pcol-hd"><span data-i18n="pl_prog">In progress</span><span class="pcol-count" id="pc-prog">0</span></div><div id="pl-prog"></div></div>
+        <div class="pcol"><div class="pcol-hd"><span data-i18n="pl_sub">Submitted</span><span class="pcol-count" id="pc-sub">0</span></div><div id="pl-sub"></div></div>
+        <div class="pcol"><div class="pcol-hd"><span data-i18n="pl_won">Won / Lost</span><span class="pcol-count" id="pc-won">0</span></div><div id="pl-won"></div></div>
       </div>
       <div class="card">
-        <div style="font-size:13px;font-weight:600;margin-bottom:8px;" data-i18n="pipeline_summary">Pipeline summary</div>
-        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px;">
-          <span style="font-size:26px;font-weight:700;color:var(--accent);" id="pl-won-amt">$0</span>
-          <span style="font-size:13px;color:var(--text-muted);" data-i18n="won_so_far">won so far</span>
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;" data-i18n="pipeline_summary">Pipeline summary</div>
+        <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:10px">
+          <span style="font-family:var(--display);font-size:28px;font-weight:800;color:var(--lime);" id="pl-won-amt">$0</span>
+          <span style="font-size:13px;color:var(--ink-4);" data-i18n="won_so_far">won so far</span>
         </div>
         <div class="pbar-wrap"><div class="pbar" id="pl-pbar" style="width:0%"></div></div>
         <div class="hint" id="pl-hint"></div>
@@ -375,12 +617,12 @@ input:focus,select:focus{border-color:var(--accent)}
       <div class="page-title" data-i18n="tab_planner">Action plan</div>
       <div class="page-sub" data-i18n="planner_sub">Auto-generated from your deadlines</div>
       <div id="planner-content"></div>
-      <div style="margin-top:16px;"><button class="btn btn-ai" onclick="openAI('planner')">✨ <span data-i18n="gen_plan">Generate detailed plan with AI</span></button></div>
+      <div style="margin-top:16px"><button class="btn btn-ai" onclick="openAI('planner')">✦ <span data-i18n="gen_plan">Generate detailed plan with AI</span></button></div>
     </div>
 
     <!-- DOCS -->
     <div class="page" id="page-docs">
-      <div class="page-title" data-i18n="tab_docs">Document tracker</div>
+      <div class="page-title" data-i18n="tab_docs">Documents</div>
       <div class="page-sub" data-i18n="docs_sub">Track what you have and what's missing</div>
       <div id="docs-content"></div>
     </div>
@@ -389,18 +631,18 @@ input:focus,select:focus{border-color:var(--accent)}
     <div class="page" id="page-profile">
       <div class="page-title" data-i18n="tab_profile">Profile</div>
       <div class="page-sub" data-i18n="profile_sub">This powers the matching engine</div>
-      <div class="card" style="margin-bottom:14px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <div style="font-size:13px;font-weight:600;" data-i18n="profile_strength">Profile strength</div>
-          <div style="font-size:18px;font-weight:700;color:var(--accent);" id="prof-val">0%</div>
+      <div class="card" style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:13px;font-weight:600" data-i18n="profile_strength">Profile strength</div>
+          <div style="font-family:var(--display);font-size:20px;font-weight:800;color:var(--lime)" id="prof-val">0%</div>
         </div>
         <div class="rbar-wrap"><div class="rbar" id="prof-bar" style="width:0%"></div></div>
         <div class="hint" id="prof-hint"></div>
       </div>
-      <div class="prof-grid" id="prof-display"></div>
-      <div style="margin-top:14px;display:flex;gap:10px;">
-        <button class="btn btn-secondary" onclick="resetProfile()" data-i18n="edit_profile">Edit profile</button>
-        <button class="btn btn-ai" onclick="openAI('profile')">✨ <span data-i18n="improve_ai">Improve with AI</span></button>
+      <div class="pgrid" id="prof-display"></div>
+      <div style="margin-top:14px;display:flex;gap:10px">
+        <button class="btn btn-ghost" onclick="resetProfile()" data-i18n="edit_profile">Edit profile</button>
+        <button class="btn btn-ai" onclick="openAI('profile')">✦ <span data-i18n="improve_ai">Improve with AI</span></button>
       </div>
     </div>
   </div>
@@ -408,392 +650,192 @@ input:focus,select:focus{border-color:var(--accent)}
 
 <!-- AI MODAL -->
 <div id="ai-modal">
-  <div class="ai-inner">
-    <div class="ai-title" id="ai-title">✨ AI</div>
+  <div class="ai-box">
+    <div class="ai-title" id="ai-title">✦ AI</div>
     <div class="ai-sub" id="ai-sub"></div>
-    <div class="ai-out" id="ai-out"><div class="ai-loading"><div class="spinner"></div> <span data-i18n="generating">Generating...</span></div></div>
-    <div style="margin-top:14px;display:flex;justify-content:flex-end;gap:10px;">
-      <button class="btn btn-secondary" id="ai-copy" style="display:none" onclick="copyAI()" data-i18n="copy">Copy</button>
-      <button class="btn btn-outline" onclick="closeAI()" data-i18n="close">Close</button>
+    <div class="ai-out" id="ai-out"><div class="ai-loading"><div class="spin"></div> <span data-i18n="generating">Generating...</span></div></div>
+    <div style="margin-top:14px;display:flex;justify-content:flex-end;gap:10px">
+      <button class="btn btn-ghost btn-sm" id="ai-copy" style="display:none" onclick="copyAI()" data-i18n="copy">Copy</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeAI()" data-i18n="close">Close</button>
     </div>
   </div>
 </div>
 
 <script>
-// ══════════════════════════════════════════
-// I18N
-// ══════════════════════════════════════════
-const LANGS = {
-  en: {
-    ob1_title:"Find scholarships you actually qualify for",ob1_sub:"Answer 3 quick questions. ScholarMatch ranks every opportunity by your real eligibility.",
-    feat1:"Personalized match score for each scholarship",feat2:"Deadline tracking and weekly action plans",feat3:"AI essay outlines on demand",feat4:"Works on every device — data synced to cloud",
-    get_started:"Get started →",ob2_title:"Personal information",ob2_sub:"Used to filter by location and citizenship.",
-    lbl_name:"Full name",lbl_country:"Country",lbl_region:"State / Region",lbl_citizenship:"Citizenship",lbl_dob:"Date of birth",
-    back:"Back",continue:"Continue →",ob3_title:"Academic profile",ob3_sub:"Your GPA and major are the most important matching factors.",
-    lbl_school:"School / University",lbl_year:"Year",lbl_gpa:"GPA (4.0 scale)",lbl_major:"Major",
-    ob4_title:"Activities & background",ob4_sub:"Each item unlocks more scholarships.",lbl_activities:"Activities",
-    act_leadership:"Leadership",act_volunteer:"Volunteering",act_research:"Research",act_sports:"Sports",act_arts:"Arts / Music",act_competition:"Competitions",act_entre:"Entrepreneurship",act_community:"Community service",
-    lbl_financial:"Financial need",fin_high:"High need",fin_med:"Medium need",fin_low:"Low / No need",lbl_firstgen:"First-generation student?",yes:"Yes",no:"No",see_matches:"See my matches →",
-    tab_dashboard:"📊 Dashboard",tab_matches:"🎯 Matches",tab_pipeline:"📋 Pipeline",tab_planner:"📅 Planner",tab_docs:"✅ Documents",tab_profile:"👤 Profile",
-    total_value:"Total matched scholarship value",stat_matched:"Matched",stat_urgent:"Urgent",stat_avg:"Avg score",stat_profile:"Profile",
-    top_opps:"Top opportunities",ai_strategy:"AI Strategy",gen_strategy:"Generate strategy",ai_placeholder:"Click Generate strategy to get a personalized action plan.",
-    pipeline_sub:"Track every application from discovery to decision",pl_not:"Not started",pl_prog:"In progress",pl_sub:"Submitted",pl_won:"Won / Lost",
-    pipeline_summary:"Pipeline summary",won_so_far:"won so far",planner_sub:"Auto-generated from your deadlines",gen_plan:"Generate detailed plan with AI",
-    docs_sub:"Track what you have and what's missing",profile_sub:"This powers the matching engine",profile_strength:"Profile strength",edit_profile:"Edit profile",improve_ai:"Improve with AI",
-    generating:"Generating...",copy:"Copy",close:"Close",filter_all:"All",filter_urgent:"🔴 Urgent",filter_high:"⭐ 85%+",filter_noessay:"✏️ No essay",filter_need:"💰 Need-based",filter_intl:"🌍 International",
-    matched_sub:"scholarships matched for your profile",install_msg:"📱 Install ScholarMatch for offline access",install_btn:"Install",
-    today:"Today",this_week:"This week",next_weeks:"Next 3 weeks",later:"Later",not_ready:"missing",ready:"✓ Ready",
-    docs_have:"Documents I have",apply:"Apply ↗",essay_help:"✨ Essay help",
-    status_not:"Not started",status_prog:"In progress",status_sub:"Submitted",status_won:"Won ✓",status_lost:"Not selected",
-    yr_hs3:"High School — 11th",yr_hs4:"High School — 12th",yr_ug1:"Freshman",yr_ug2:"Sophomore",yr_ug3:"Junior",yr_ug4:"Senior",yr_grad:"Graduate"
-  },
-  de: {
-    ob1_title:"Finde Stipendien, für die du wirklich qualifiziert bist",ob1_sub:"Beantworte 3 kurze Fragen. ScholarMatch bewertet jede Möglichkeit nach deiner echten Eignung.",
-    feat1:"Persönlicher Match-Score für jedes Stipendium",feat2:"Deadline-Tracking und wöchentliche Aktionspläne",feat3:"KI-Aufsatz-Gliederungen auf Abruf",feat4:"Funktioniert auf allen Geräten — Daten in der Cloud",
-    get_started:"Jetzt starten →",ob2_title:"Persönliche Daten",ob2_sub:"Für die Filterung nach Standort und Staatsbürgerschaft.",
-    lbl_name:"Vollständiger Name",lbl_country:"Land",lbl_region:"Bundesland / Region",lbl_citizenship:"Staatsbürgerschaft",lbl_dob:"Geburtsdatum",
-    back:"Zurück",continue:"Weiter →",ob3_title:"Akademisches Profil",ob3_sub:"GPA und Fachrichtung sind die wichtigsten Matching-Faktoren.",
-    lbl_school:"Schule / Universität",lbl_year:"Jahr",lbl_gpa:"GPA (4.0 Skala)",lbl_major:"Fachrichtung",
-    ob4_title:"Aktivitäten & Hintergrund",ob4_sub:"Jeder Punkt erschließt mehr Stipendien.",lbl_activities:"Aktivitäten",
-    act_leadership:"Führungsrolle",act_volunteer:"Ehrenamt",act_research:"Forschung",act_sports:"Sport",act_arts:"Kunst / Musik",act_competition:"Wettbewerbe",act_entre:"Unternehmertum",act_community:"Gemeindedienst",
-    lbl_financial:"Finanzieller Bedarf",fin_high:"Hoher Bedarf",fin_med:"Mittlerer Bedarf",fin_low:"Kein Bedarf",lbl_firstgen:"Erststudierender?",yes:"Ja",no:"Nein",see_matches:"Meine Treffer anzeigen →",
-    tab_dashboard:"📊 Dashboard",tab_matches:"🎯 Treffer",tab_pipeline:"📋 Pipeline",tab_planner:"📅 Planer",tab_docs:"✅ Dokumente",tab_profile:"👤 Profil",
-    total_value:"Gesamtwert der gematchten Stipendien",stat_matched:"Gematchte",stat_urgent:"Dringend",stat_avg:"Ø Score",stat_profile:"Profil",
-    top_opps:"Top-Möglichkeiten",ai_strategy:"KI-Strategie",gen_strategy:"Strategie generieren",ai_placeholder:"Klicke auf Strategie generieren für einen personalisierten Aktionsplan.",
-    pipeline_sub:"Verfolge jede Bewerbung von der Entdeckung bis zur Entscheidung",pl_not:"Nicht begonnen",pl_prog:"In Bearbeitung",pl_sub:"Eingereicht",pl_won:"Gewonnen / Verloren",
-    pipeline_summary:"Pipeline-Zusammenfassung",won_so_far:"bisher gewonnen",planner_sub:"Automatisch aus deinen Deadlines generiert",gen_plan:"Detaillierten Plan mit KI erstellen",
-    docs_sub:"Verfolge was du hast und was fehlt",profile_sub:"Dies treibt die Matching-Engine an",profile_strength:"Profilstärke",edit_profile:"Profil bearbeiten",improve_ai:"Mit KI verbessern",
-    generating:"Generiere...",copy:"Kopieren",close:"Schließen",filter_all:"Alle",filter_urgent:"🔴 Dringend",filter_high:"⭐ 85%+",filter_noessay:"✏️ Ohne Aufsatz",filter_need:"💰 Bedarfsbasiert",filter_intl:"🌍 International",
-    matched_sub:"Stipendien für dein Profil gefunden",install_msg:"📱 ScholarMatch für Offline-Zugriff installieren",install_btn:"Installieren",
-    today:"Heute",this_week:"Diese Woche",next_weeks:"Nächste 3 Wochen",later:"Später",not_ready:"fehlend",ready:"✓ Bereit",
-    docs_have:"Meine Dokumente",apply:"Bewerben ↗",essay_help:"✨ Aufsatz-Hilfe",
-    status_not:"Nicht begonnen",status_prog:"In Bearbeitung",status_sub:"Eingereicht",status_won:"Gewonnen ✓",status_lost:"Nicht ausgewählt",
-    yr_hs3:"Gymnasium — 11. Klasse",yr_hs4:"Gymnasium — 12. Klasse",yr_ug1:"1. Semester",yr_ug2:"2. Semester",yr_ug3:"3. Semester",yr_ug4:"4. Semester",yr_grad:"Masterstudent"
-  },
-  es: {
-    ob1_title:"Encuentra becas para las que realmente calificas",ob1_sub:"Responde 3 preguntas rápidas. ScholarMatch clasifica cada oportunidad según tu elegibilidad real.",
-    feat1:"Puntuación de compatibilidad personalizada",feat2:"Seguimiento de plazos y planes de acción semanales",feat3:"Esquemas de ensayos con IA bajo demanda",feat4:"Funciona en todos los dispositivos — datos en la nube",
-    get_started:"Empezar →",ob2_title:"Información personal",ob2_sub:"Para filtrar por ubicación y ciudadanía.",
-    lbl_name:"Nombre completo",lbl_country:"País",lbl_region:"Estado / Región",lbl_citizenship:"Ciudadanía",lbl_dob:"Fecha de nacimiento",
-    back:"Atrás",continue:"Continuar →",ob3_title:"Perfil académico",ob3_sub:"Tu GPA y especialidad son los factores más importantes.",
-    lbl_school:"Escuela / Universidad",lbl_year:"Año",lbl_gpa:"GPA (escala 4.0)",lbl_major:"Especialidad",
-    ob4_title:"Actividades y antecedentes",ob4_sub:"Cada elemento desbloquea más becas.",lbl_activities:"Actividades",
-    act_leadership:"Liderazgo",act_volunteer:"Voluntariado",act_research:"Investigación",act_sports:"Deportes",act_arts:"Arte / Música",act_competition:"Competencias",act_entre:"Emprendimiento",act_community:"Servicio comunitario",
-    lbl_financial:"Necesidad financiera",fin_high:"Alta necesidad",fin_med:"Necesidad media",fin_low:"Sin necesidad",lbl_firstgen:"¿Primera generación universitaria?",yes:"Sí",no:"No",see_matches:"Ver mis becas →",
-    tab_dashboard:"📊 Panel",tab_matches:"🎯 Becas",tab_pipeline:"📋 Pipeline",tab_planner:"📅 Planificador",tab_docs:"✅ Documentos",tab_profile:"👤 Perfil",
-    total_value:"Valor total de becas compatibles",stat_matched:"Compatibles",stat_urgent:"Urgentes",stat_avg:"Puntuación media",stat_profile:"Perfil",
-    top_opps:"Mejores oportunidades",ai_strategy:"Estrategia IA",gen_strategy:"Generar estrategia",ai_placeholder:"Haz clic en Generar estrategia para obtener un plan personalizado.",
-    pipeline_sub:"Sigue cada solicitud desde el descubrimiento hasta la decisión",pl_not:"Sin iniciar",pl_prog:"En progreso",pl_sub:"Enviada",pl_won:"Ganada / Perdida",
-    pipeline_summary:"Resumen del pipeline",won_so_far:"ganado hasta ahora",planner_sub:"Generado automáticamente desde tus plazos",gen_plan:"Generar plan detallado con IA",
-    docs_sub:"Rastrea lo que tienes y lo que falta",profile_sub:"Esto impulsa el motor de compatibilidad",profile_strength:"Fortaleza del perfil",edit_profile:"Editar perfil",improve_ai:"Mejorar con IA",
-    generating:"Generando...",copy:"Copiar",close:"Cerrar",filter_all:"Todo",filter_urgent:"🔴 Urgente",filter_high:"⭐ 85%+",filter_noessay:"✏️ Sin ensayo",filter_need:"💰 Por necesidad",filter_intl:"🌍 Internacional",
-    matched_sub:"becas compatibles con tu perfil",install_msg:"📱 Instalar ScholarMatch para acceso sin conexión",install_btn:"Instalar",
-    today:"Hoy",this_week:"Esta semana",next_weeks:"Próximas 3 semanas",later:"Más tarde",not_ready:"faltante(s)",ready:"✓ Listo",
-    docs_have:"Mis documentos",apply:"Aplicar ↗",essay_help:"✨ Ayuda con ensayo",
-    status_not:"Sin iniciar",status_prog:"En progreso",status_sub:"Enviada",status_won:"Ganada ✓",status_lost:"No seleccionado",
-    yr_hs3:"Preparatoria — 11°",yr_hs4:"Preparatoria — 12°",yr_ug1:"1er año",yr_ug2:"2do año",yr_ug3:"3er año",yr_ug4:"4to año",yr_grad:"Posgrado"
-  },
-  tr: {
-    ob1_title:"Gerçekten hak ettiğin bursları bul",ob1_sub:"3 hızlı soruyu yanıtla. ScholarMatch her fırsatı gerçek uygunluğuna göre sıralar.",
-    feat1:"Her burs için kişiselleştirilmiş eşleşme puanı",feat2:"Son tarih takibi ve haftalık eylem planları",feat3:"İstek üzerine yapay zeka makale taslakları",feat4:"Her cihazda çalışır — veriler bulutta senkronize",
-    get_started:"Başla →",ob2_title:"Kişisel bilgiler",ob2_sub:"Konum ve vatandaşlık bazında filtreleme için kullanılır.",
-    lbl_name:"Ad Soyad",lbl_country:"Ülke",lbl_region:"Eyalet / Bölge",lbl_citizenship:"Vatandaşlık",lbl_dob:"Doğum tarihi",
-    back:"Geri",continue:"Devam →",ob3_title:"Akademik profil",ob3_sub:"GPA ve bölümün en önemli eşleşme faktörleridir.",
-    lbl_school:"Okul / Üniversite",lbl_year:"Yıl",lbl_gpa:"GPA (4.0 ölçeği)",lbl_major:"Bölüm",
-    ob4_title:"Aktiviteler ve geçmiş",ob4_sub:"Her madde daha fazla burs açar.",lbl_activities:"Aktiviteler",
-    act_leadership:"Liderlik",act_volunteer:"Gönüllülük",act_research:"Araştırma",act_sports:"Spor",act_arts:"Sanat / Müzik",act_competition:"Yarışmalar",act_entre:"Girişimcilik",act_community:"Toplum hizmeti",
-    lbl_financial:"Finansal ihtiyaç",fin_high:"Yüksek ihtiyaç",fin_med:"Orta ihtiyaç",fin_low:"Düşük / Yok",lbl_firstgen:"Ailede ilk üniversite öğrencisi mi?",yes:"Evet",no:"Hayır",see_matches:"Eşleşmelerimi gör →",
-    tab_dashboard:"📊 Panel",tab_matches:"🎯 Eşleşmeler",tab_pipeline:"📋 Pipeline",tab_planner:"📅 Planlayıcı",tab_docs:"✅ Belgeler",tab_profile:"👤 Profil",
-    total_value:"Toplam eşleşen burs değeri",stat_matched:"Eşleşen",stat_urgent:"Acil",stat_avg:"Ort. puan",stat_profile:"Profil",
-    top_opps:"En iyi fırsatlar",ai_strategy:"YZ Stratejisi",gen_strategy:"Strateji oluştur",ai_placeholder:"Kişiselleştirilmiş eylem planı için Strateji oluştur'a tıkla.",
-    pipeline_sub:"Her başvuruyu keşiften karara kadar takip et",pl_not:"Başlanmadı",pl_prog:"Devam ediyor",pl_sub:"Gönderildi",pl_won:"Kazanıldı / Kaybedildi",
-    pipeline_summary:"Pipeline özeti",won_so_far:"şimdiye kadar kazanıldı",planner_sub:"Son tarihlerinden otomatik oluşturuldu",gen_plan:"YZ ile detaylı plan oluştur",
-    docs_sub:"Neye sahip olduğunu ve neyin eksik olduğunu takip et",profile_sub:"Bu eşleşme motorunu güçlendirir",profile_strength:"Profil gücü",edit_profile:"Profili düzenle",improve_ai:"YZ ile geliştir",
-    generating:"Oluşturuluyor...",copy:"Kopyala",close:"Kapat",filter_all:"Tümü",filter_urgent:"🔴 Acil",filter_high:"⭐ 85%+",filter_noessay:"✏️ Makalesiz",filter_need:"💰 İhtiyaç bazlı",filter_intl:"🌍 Uluslararası",
-    matched_sub:"profiliyle eşleşen burs",install_msg:"📱 Çevrimdışı erişim için ScholarMatch'i yükle",install_btn:"Yükle",
-    today:"Bugün",this_week:"Bu hafta",next_weeks:"Sonraki 3 hafta",later:"Daha sonra",not_ready:"eksik",ready:"✓ Hazır",
-    docs_have:"Belgelerim",apply:"Başvur ↗",essay_help:"✨ Makale yardımı",
-    status_not:"Başlanmadı",status_prog:"Devam ediyor",status_sub:"Gönderildi",status_won:"Kazanıldı ✓",status_lost:"Seçilmedi",
-    yr_hs3:"Lise — 11. Sınıf",yr_hs4:"Lise — 12. Sınıf",yr_ug1:"1. Yıl",yr_ug2:"2. Yıl",yr_ug3:"3. Yıl",yr_ug4:"4. Yıl",yr_grad:"Yüksek Lisans"
-  },
-  nl: {
-    ob1_title:"Vind beurzen waarvoor je echt in aanmerking komt",ob1_sub:"Beantwoord 3 snelle vragen. ScholarMatch rangschikt elke kans op basis van jouw echte geschiktheid.",
-    feat1:"Persoonlijke matchscore voor elke beurs",feat2:"Deadline-tracking en wekelijkse actieplannen",feat3:"AI-opsteloutlines op aanvraag",feat4:"Werkt op elk apparaat — gegevens gesynchroniseerd in de cloud",
-    get_started:"Aan de slag →",ob2_title:"Persoonlijke informatie",ob2_sub:"Voor filtering op locatie en staatsburgerschap.",
-    lbl_name:"Volledige naam",lbl_country:"Land",lbl_region:"Provincie / Regio",lbl_citizenship:"Staatsburgerschap",lbl_dob:"Geboortedatum",
-    back:"Terug",continue:"Doorgaan →",ob3_title:"Academisch profiel",ob3_sub:"GPA en studierichting zijn de belangrijkste factoren.",
-    lbl_school:"School / Universiteit",lbl_year:"Jaar",lbl_gpa:"GPA (schaal 4.0)",lbl_major:"Studierichting",
-    ob4_title:"Activiteiten en achtergrond",ob4_sub:"Elk item ontgrendelt meer beurzen.",lbl_activities:"Activiteiten",
-    act_leadership:"Leiderschapsrol",act_volunteer:"Vrijwilligerswerk",act_research:"Onderzoek",act_sports:"Sport",act_arts:"Kunst / Muziek",act_competition:"Wedstrijden",act_entre:"Ondernemerschap",act_community:"Gemeenschapsdienst",
-    lbl_financial:"Financiële behoefte",fin_high:"Hoge behoefte",fin_med:"Gemiddelde behoefte",fin_low:"Geen behoefte",lbl_firstgen:"Eerste generatie student?",yes:"Ja",no:"Nee",see_matches:"Mijn matches bekijken →",
-    tab_dashboard:"📊 Dashboard",tab_matches:"🎯 Matches",tab_pipeline:"📋 Pipeline",tab_planner:"📅 Planner",tab_docs:"✅ Documenten",tab_profile:"👤 Profiel",
-    total_value:"Totale waarde gematchte beurzen",stat_matched:"Gematcht",stat_urgent:"Dringend",stat_avg:"Gem. score",stat_profile:"Profiel",
-    top_opps:"Beste kansen",ai_strategy:"AI-strategie",gen_strategy:"Strategie genereren",ai_placeholder:"Klik op Strategie genereren voor een persoonlijk actieplan.",
-    pipeline_sub:"Volg elke aanvraag van ontdekking tot beslissing",pl_not:"Niet gestart",pl_prog:"Bezig",pl_sub:"Ingediend",pl_won:"Gewonnen / Verloren",
-    pipeline_summary:"Pipeline-overzicht",won_so_far:"tot nu toe gewonnen",planner_sub:"Automatisch gegenereerd vanuit je deadlines",gen_plan:"Gedetailleerd plan genereren met AI",
-    docs_sub:"Volg wat je hebt en wat ontbreekt",profile_sub:"Dit drijft de matching-engine aan",profile_strength:"Profielsterkte",edit_profile:"Profiel bewerken",improve_ai:"Verbeteren met AI",
-    generating:"Genereren...",copy:"Kopiëren",close:"Sluiten",filter_all:"Alles",filter_urgent:"🔴 Dringend",filter_high:"⭐ 85%+",filter_noessay:"✏️ Geen opstel",filter_need:"💰 Op basis van behoefte",filter_intl:"🌍 Internationaal",
-    matched_sub:"beurzen gevonden voor jouw profiel",install_msg:"📱 Installeer ScholarMatch voor offline toegang",install_btn:"Installeren",
-    today:"Vandaag",this_week:"Deze week",next_weeks:"Komende 3 weken",later:"Later",not_ready:"ontbreekt",ready:"✓ Klaar",
-    docs_have:"Mijn documenten",apply:"Aanvragen ↗",essay_help:"✨ Opstel hulp",
-    status_not:"Niet gestart",status_prog:"Bezig",status_sub:"Ingediend",status_won:"Gewonnen ✓",status_lost:"Niet geselecteerd",
-    yr_hs3:"Middelbare school — 5e klas",yr_hs4:"Middelbare school — 6e klas",yr_ug1:"1e jaar",yr_ug2:"2e jaar",yr_ug3:"3e jaar",yr_ug4:"4e jaar",yr_grad:"Masterstudent"
-  },
-  bg: {
-    ob1_title:"Намери стипендии, за които наистина се класираш",ob1_sub:"Отговори на 3 бързи въпроса. ScholarMatch класира всяка възможност по твоята реална допустимост.",
-    feat1:"Персонализиран match score за всяка стипендия",feat2:"Проследяване на дедлайни и седмични планове",feat3:"AI есе структури при поискване",feat4:"Работи на всяко устройство — данните са в облака",
-    get_started:"Започни →",ob2_title:"Лична информация",ob2_sub:"Използва се за филтриране по местоположение и гражданство.",
-    lbl_name:"Пълно име",lbl_country:"Държава",lbl_region:"Щат / Регион",lbl_citizenship:"Гражданство",lbl_dob:"Дата на раждане",
-    back:"Назад",continue:"Продължи →",ob3_title:"Академичен профил",ob3_sub:"GPA и специалността са най-важните фактори.",
-    lbl_school:"Училище / Университет",lbl_year:"Година",lbl_gpa:"GPA (скала 4.0)",lbl_major:"Специалност",
-    ob4_title:"Дейности и произход",ob4_sub:"Всеки елемент отключва повече стипендии.",lbl_activities:"Дейности",
-    act_leadership:"Лидерска роля",act_volunteer:"Доброволчество",act_research:"Изследвания",act_sports:"Спорт",act_arts:"Изкуство / Музика",act_competition:"Конкурси",act_entre:"Предприемачество",act_community:"Общностна дейност",
-    lbl_financial:"Финансова нужда",fin_high:"Висока нужда",fin_med:"Средна нужда",fin_low:"Ниска / Без нужда",lbl_firstgen:"Първо поколение студент?",yes:"Да",no:"Не",see_matches:"Виж моите съвпадения →",
-    tab_dashboard:"📊 Табло",tab_matches:"🎯 Съвпадения",tab_pipeline:"📋 Тръбопровод",tab_planner:"📅 Планер",tab_docs:"✅ Документи",tab_profile:"👤 Профил",
-    total_value:"Обща стойност на съвпаднали стипендии",stat_matched:"Съвпадения",stat_urgent:"Спешни",stat_avg:"Ср. score",stat_profile:"Профил",
-    top_opps:"Топ възможности",ai_strategy:"AI Стратегия",gen_strategy:"Генерирай стратегия",ai_placeholder:"Натисни Генерирай стратегия за персонализиран план.",
-    pipeline_sub:"Проследявай всяко кандидатстване от началото до решението",pl_not:"Не е започнато",pl_prog:"В процес",pl_sub:"Изпратено",pl_won:"Спечелено / Изгубено",
-    pipeline_summary:"Обобщение на pipeline",won_so_far:"спечелени досега",planner_sub:"Автоматично генерирано от твоите дедлайни",gen_plan:"Генерирай детайлен план с AI",
-    docs_sub:"Проследи какво имаш и какво липсва",profile_sub:"Това захранва matching engine-а",profile_strength:"Сила на профила",edit_profile:"Редактирай профил",improve_ai:"Подобри с AI",
-    generating:"Генерира се...",copy:"Копирай",close:"Затвори",filter_all:"Всички",filter_urgent:"🔴 Спешни",filter_high:"⭐ 85%+",filter_noessay:"✏️ Без есе",filter_need:"💰 По нужда",filter_intl:"🌍 Международни",
-    matched_sub:"стипендии съвпадат с профила ти",install_msg:"📱 Инсталирай ScholarMatch за офлайн достъп",install_btn:"Инсталирай",
-    today:"Днес",this_week:"Тази седмица",next_weeks:"Следващите 3 седмици",later:"По-късно",not_ready:"липсва/т",ready:"✓ Готово",
-    docs_have:"Моите документи",apply:"Кандидатствай ↗",essay_help:"✨ Помощ с есе",
-    status_not:"Не е започнато",status_prog:"В процес",status_sub:"Изпратено",status_won:"Спечелено ✓",status_lost:"Не е избрано",
-    yr_hs3:"Гимназия — 11 клас",yr_hs4:"Гимназия — 12 клас",yr_ug1:"1-ва година",yr_ug2:"2-ра година",yr_ug3:"3-та година",yr_ug4:"4-та година",yr_grad:"Магистратура"
-  }
-};
+// ════════════════════════════════════════
+// I18N — all 6 languages
+// ════════════════════════════════════════
+const LANGS={en:{ob1_title:"Find scholarships you actually qualify for",ob1_sub:"Answer 3 quick questions. ScholarMatch ranks every opportunity by your real eligibility — not keywords.",feat1:"Personalized match score for each scholarship",feat2:"Deadline tracking and weekly action plans",feat3:"AI essay outlines on demand",feat4:"Works on every device — data synced to cloud",get_started:"Get started →",ob2_title:"Personal information",ob2_sub:"Used to filter by location and citizenship.",lbl_name:"Full name",lbl_country:"Country",lbl_region:"State / Region",lbl_citizenship:"Citizenship",lbl_dob:"Date of birth",back:"Back",continue:"Continue →",ob3_title:"Academic profile",ob3_sub:"Your GPA and major are the most important matching factors.",lbl_school:"School / University",lbl_year:"Year",lbl_gpa:"GPA (4.0 scale)",lbl_major:"Major",ob4_title:"Activities & background",ob4_sub:"Each item unlocks more scholarships.",lbl_activities:"Activities",act_leadership:"Leadership",act_volunteer:"Volunteering",act_research:"Research",act_sports:"Sports",act_arts:"Arts / Music",act_competition:"Competitions",act_entre:"Entrepreneurship",act_community:"Community service",lbl_financial:"Financial need",fin_high:"High need",fin_med:"Medium need",fin_low:"Low / No need",lbl_firstgen:"First-generation student?",yes:"Yes",no:"No",see_matches:"See my matches →",tab_dashboard:"Dashboard",tab_matches:"Matches",tab_pipeline:"Pipeline",tab_planner:"Planner",tab_docs:"Documents",tab_profile:"Profile",total_value:"Total matched value",stat_matched:"Matched",stat_urgent:"Urgent",stat_avg:"Avg score",stat_profile:"Profile",top_opps:"Top opportunities",gen_strategy:"Generate strategy",pipeline_sub:"Track every application from discovery to decision",pl_not:"Not started",pl_prog:"In progress",pl_sub:"Submitted",pl_won:"Won / Lost",pipeline_summary:"Pipeline summary",won_so_far:"won so far",planner_sub:"Auto-generated from your deadlines",gen_plan:"Generate detailed plan with AI",docs_sub:"Track what you have and what's missing",profile_sub:"This powers the matching engine",profile_strength:"Profile strength",edit_profile:"Edit profile",improve_ai:"Improve with AI",generating:"Generating...",copy:"Copy",close:"Close",filter_all:"All",filter_urgent:"🔴 Urgent",filter_high:"⭐ 85%+",filter_noessay:"No essay",filter_need:"Need-based",filter_intl:"International",matched_sub:"scholarships matched",install_msg:"📱 Install ScholarMatch for offline access",install_btn:"Install",today:"Today",this_week:"This week",next_weeks:"Next 3 weeks",later:"Later",not_ready:"missing",ready:"✓ Ready",docs_have:"My documents",apply:"Apply ↗",essay_help:"✦ Essay help",status_not:"Not started",status_prog:"In progress",status_sub:"Submitted",status_won:"Won ✓",status_lost:"Not selected"},
+de:{ob1_title:"Finde Stipendien, für die du qualifiziert bist",ob1_sub:"Beantworte 3 kurze Fragen. ScholarMatch bewertet jede Möglichkeit nach deiner echten Eignung.",feat1:"Persönlicher Match-Score",feat2:"Deadline-Tracking und Aktionspläne",feat3:"KI-Aufsatz-Gliederungen",feat4:"Auf allen Geräten — Daten synchronisiert",get_started:"Jetzt starten →",ob2_title:"Persönliche Daten",ob2_sub:"Für Filterung nach Standort und Staatsbürgerschaft.",lbl_name:"Vollständiger Name",lbl_country:"Land",lbl_region:"Region",lbl_citizenship:"Staatsbürgerschaft",lbl_dob:"Geburtsdatum",back:"Zurück",continue:"Weiter →",ob3_title:"Akademisches Profil",ob3_sub:"GPA und Fachrichtung sind die wichtigsten Faktoren.",lbl_school:"Schule / Universität",lbl_year:"Studienjahr",lbl_gpa:"GPA",lbl_major:"Fachrichtung",ob4_title:"Aktivitäten",ob4_sub:"Jeder Punkt erschließt mehr Stipendien.",lbl_activities:"Aktivitäten",act_leadership:"Führungsrolle",act_volunteer:"Ehrenamt",act_research:"Forschung",act_sports:"Sport",act_arts:"Kunst",act_competition:"Wettbewerbe",act_entre:"Unternehmertum",act_community:"Gemeindedienst",lbl_financial:"Finanzieller Bedarf",fin_high:"Hoher Bedarf",fin_med:"Mittlerer Bedarf",fin_low:"Kein Bedarf",lbl_firstgen:"Erststudierender?",yes:"Ja",no:"Nein",see_matches:"Meine Treffer →",tab_dashboard:"Dashboard",tab_matches:"Treffer",tab_pipeline:"Pipeline",tab_planner:"Planer",tab_docs:"Dokumente",tab_profile:"Profil",total_value:"Gesamtwert",stat_matched:"Gefunden",stat_urgent:"Dringend",stat_avg:"Ø Score",stat_profile:"Profil",top_opps:"Top-Möglichkeiten",gen_strategy:"Strategie generieren",pipeline_sub:"Verfolge jede Bewerbung",pl_not:"Nicht begonnen",pl_prog:"In Bearbeitung",pl_sub:"Eingereicht",pl_won:"Gewonnen/Verloren",pipeline_summary:"Zusammenfassung",won_so_far:"bisher gewonnen",planner_sub:"Automatisch generiert",gen_plan:"Plan mit KI erstellen",docs_sub:"Verfolge deine Dokumente",profile_sub:"Treibt die Matching-Engine an",profile_strength:"Profilstärke",edit_profile:"Profil bearbeiten",improve_ai:"Mit KI verbessern",generating:"Generiere...",copy:"Kopieren",close:"Schließen",filter_all:"Alle",filter_urgent:"🔴 Dringend",filter_high:"⭐ 85%+",filter_noessay:"Ohne Aufsatz",filter_need:"Bedarfsbasiert",filter_intl:"International",matched_sub:"Stipendien gefunden",install_msg:"📱 ScholarMatch installieren",install_btn:"Installieren",today:"Heute",this_week:"Diese Woche",next_weeks:"Nächste 3 Wochen",later:"Später",not_ready:"fehlend",ready:"✓ Bereit",docs_have:"Meine Dokumente",apply:"Bewerben ↗",essay_help:"✦ Aufsatz-Hilfe",status_not:"Nicht begonnen",status_prog:"In Bearbeitung",status_sub:"Eingereicht",status_won:"Gewonnen ✓",status_lost:"Nicht ausgewählt"},
+es:{ob1_title:"Encuentra becas para las que calificas",ob1_sub:"3 preguntas rápidas. ScholarMatch clasifica cada oportunidad según tu elegibilidad real.",feat1:"Puntuación de compatibilidad personalizada",feat2:"Seguimiento de plazos y planes de acción",feat3:"Esquemas de ensayos con IA",feat4:"Funciona en todos los dispositivos",get_started:"Empezar →",ob2_title:"Información personal",ob2_sub:"Para filtrar por ubicación y ciudadanía.",lbl_name:"Nombre completo",lbl_country:"País",lbl_region:"Estado / Región",lbl_citizenship:"Ciudadanía",lbl_dob:"Fecha de nacimiento",back:"Atrás",continue:"Continuar →",ob3_title:"Perfil académico",ob3_sub:"Tu GPA y especialidad son los factores más importantes.",lbl_school:"Escuela / Universidad",lbl_year:"Año",lbl_gpa:"GPA",lbl_major:"Especialidad",ob4_title:"Actividades",ob4_sub:"Cada elemento desbloquea más becas.",lbl_activities:"Actividades",act_leadership:"Liderazgo",act_volunteer:"Voluntariado",act_research:"Investigación",act_sports:"Deportes",act_arts:"Arte",act_competition:"Competencias",act_entre:"Emprendimiento",act_community:"Servicio comunitario",lbl_financial:"Necesidad financiera",fin_high:"Alta",fin_med:"Media",fin_low:"Sin necesidad",lbl_firstgen:"¿Primera generación?",yes:"Sí",no:"No",see_matches:"Ver mis becas →",tab_dashboard:"Panel",tab_matches:"Becas",tab_pipeline:"Pipeline",tab_planner:"Planificador",tab_docs:"Documentos",tab_profile:"Perfil",total_value:"Valor total",stat_matched:"Compatibles",stat_urgent:"Urgentes",stat_avg:"Puntuación media",stat_profile:"Perfil",top_opps:"Mejores oportunidades",gen_strategy:"Generar estrategia",pipeline_sub:"Sigue cada solicitud",pl_not:"Sin iniciar",pl_prog:"En progreso",pl_sub:"Enviada",pl_won:"Ganada/Perdida",pipeline_summary:"Resumen",won_so_far:"ganado",planner_sub:"Generado automáticamente",gen_plan:"Generar plan con IA",docs_sub:"Rastrea tus documentos",profile_sub:"Impulsa el motor de compatibilidad",profile_strength:"Fortaleza del perfil",edit_profile:"Editar perfil",improve_ai:"Mejorar con IA",generating:"Generando...",copy:"Copiar",close:"Cerrar",filter_all:"Todo",filter_urgent:"🔴 Urgente",filter_high:"⭐ 85%+",filter_noessay:"Sin ensayo",filter_need:"Por necesidad",filter_intl:"Internacional",matched_sub:"becas compatibles",install_msg:"📱 Instalar ScholarMatch",install_btn:"Instalar",today:"Hoy",this_week:"Esta semana",next_weeks:"Próximas 3 semanas",later:"Más tarde",not_ready:"faltante",ready:"✓ Listo",docs_have:"Mis documentos",apply:"Aplicar ↗",essay_help:"✦ Ayuda ensayo",status_not:"Sin iniciar",status_prog:"En progreso",status_sub:"Enviada",status_won:"Ganada ✓",status_lost:"No seleccionado"},
+tr:{ob1_title:"Gerçekten hak ettiğin bursları bul",ob1_sub:"3 hızlı soru. ScholarMatch her fırsatı gerçek uygunluğuna göre sıralar.",feat1:"Kişiselleştirilmiş eşleşme puanı",feat2:"Son tarih takibi ve eylem planları",feat3:"YZ makale taslakları",feat4:"Her cihazda çalışır",get_started:"Başla →",ob2_title:"Kişisel bilgiler",ob2_sub:"Konum ve vatandaşlık filtresi için.",lbl_name:"Ad Soyad",lbl_country:"Ülke",lbl_region:"Bölge",lbl_citizenship:"Vatandaşlık",lbl_dob:"Doğum tarihi",back:"Geri",continue:"Devam →",ob3_title:"Akademik profil",ob3_sub:"GPA ve bölüm en önemli faktörler.",lbl_school:"Okul / Üniversite",lbl_year:"Yıl",lbl_gpa:"GPA",lbl_major:"Bölüm",ob4_title:"Aktiviteler",ob4_sub:"Her madde daha fazla burs açar.",lbl_activities:"Aktiviteler",act_leadership:"Liderlik",act_volunteer:"Gönüllülük",act_research:"Araştırma",act_sports:"Spor",act_arts:"Sanat",act_competition:"Yarışmalar",act_entre:"Girişimcilik",act_community:"Toplum hizmeti",lbl_financial:"Finansal ihtiyaç",fin_high:"Yüksek",fin_med:"Orta",fin_low:"Yok",lbl_firstgen:"Ailede ilk üniversiteli?",yes:"Evet",no:"Hayır",see_matches:"Eşleşmelerimi gör →",tab_dashboard:"Panel",tab_matches:"Eşleşmeler",tab_pipeline:"Pipeline",tab_planner:"Planlayıcı",tab_docs:"Belgeler",tab_profile:"Profil",total_value:"Toplam değer",stat_matched:"Eşleşen",stat_urgent:"Acil",stat_avg:"Ort. puan",stat_profile:"Profil",top_opps:"En iyi fırsatlar",gen_strategy:"Strateji oluştur",pipeline_sub:"Her başvuruyu takip et",pl_not:"Başlanmadı",pl_prog:"Devam ediyor",pl_sub:"Gönderildi",pl_won:"Kazanıldı/Kaybedildi",pipeline_summary:"Özet",won_so_far:"kazanıldı",planner_sub:"Otomatik oluşturuldu",gen_plan:"YZ ile plan oluştur",docs_sub:"Belgelerini takip et",profile_sub:"Eşleşme motorunu güçlendirir",profile_strength:"Profil gücü",edit_profile:"Profili düzenle",improve_ai:"YZ ile geliştir",generating:"Oluşturuluyor...",copy:"Kopyala",close:"Kapat",filter_all:"Tümü",filter_urgent:"🔴 Acil",filter_high:"⭐ 85%+",filter_noessay:"Makalesiz",filter_need:"İhtiyaç bazlı",filter_intl:"Uluslararası",matched_sub:"burs eşleşti",install_msg:"📱 ScholarMatch'i yükle",install_btn:"Yükle",today:"Bugün",this_week:"Bu hafta",next_weeks:"Sonraki 3 hafta",later:"Daha sonra",not_ready:"eksik",ready:"✓ Hazır",docs_have:"Belgelerim",apply:"Başvur ↗",essay_help:"✦ Makale yardımı",status_not:"Başlanmadı",status_prog:"Devam ediyor",status_sub:"Gönderildi",status_won:"Kazanıldı ✓",status_lost:"Seçilmedi"},
+nl:{ob1_title:"Vind beurzen waarvoor je in aanmerking komt",ob1_sub:"3 snelle vragen. ScholarMatch rangschikt elke kans op jouw echte geschiktheid.",feat1:"Persoonlijke matchscore",feat2:"Deadline-tracking en actieplannen",feat3:"AI-opsteloutlines",feat4:"Werkt op elk apparaat",get_started:"Aan de slag →",ob2_title:"Persoonlijke informatie",ob2_sub:"Voor filtering op locatie en staatsburgerschap.",lbl_name:"Volledige naam",lbl_country:"Land",lbl_region:"Regio",lbl_citizenship:"Staatsburgerschap",lbl_dob:"Geboortedatum",back:"Terug",continue:"Doorgaan →",ob3_title:"Academisch profiel",ob3_sub:"GPA en studierichting zijn de belangrijkste factoren.",lbl_school:"School / Universiteit",lbl_year:"Jaar",lbl_gpa:"GPA",lbl_major:"Studierichting",ob4_title:"Activiteiten",ob4_sub:"Elk item ontgrendelt meer beurzen.",lbl_activities:"Activiteiten",act_leadership:"Leiderschap",act_volunteer:"Vrijwilligerswerk",act_research:"Onderzoek",act_sports:"Sport",act_arts:"Kunst",act_competition:"Wedstrijden",act_entre:"Ondernemerschap",act_community:"Gemeenschapsdienst",lbl_financial:"Financiële behoefte",fin_high:"Hoog",fin_med:"Gemiddeld",fin_low:"Geen",lbl_firstgen:"Eerste generatie?",yes:"Ja",no:"Nee",see_matches:"Mijn matches →",tab_dashboard:"Dashboard",tab_matches:"Matches",tab_pipeline:"Pipeline",tab_planner:"Planner",tab_docs:"Documenten",tab_profile:"Profiel",total_value:"Totale waarde",stat_matched:"Gematcht",stat_urgent:"Dringend",stat_avg:"Gem. score",stat_profile:"Profiel",top_opps:"Beste kansen",gen_strategy:"Strategie genereren",pipeline_sub:"Volg elke aanvraag",pl_not:"Niet gestart",pl_prog:"Bezig",pl_sub:"Ingediend",pl_won:"Gewonnen/Verloren",pipeline_summary:"Overzicht",won_so_far:"gewonnen",planner_sub:"Automatisch gegenereerd",gen_plan:"Plan genereren met AI",docs_sub:"Volg je documenten",profile_sub:"Drijft de matching-engine aan",profile_strength:"Profielsterkte",edit_profile:"Profiel bewerken",improve_ai:"Verbeteren met AI",generating:"Genereren...",copy:"Kopiëren",close:"Sluiten",filter_all:"Alles",filter_urgent:"🔴 Dringend",filter_high:"⭐ 85%+",filter_noessay:"Geen opstel",filter_need:"Op behoefte",filter_intl:"Internationaal",matched_sub:"beurzen gevonden",install_msg:"📱 Installeer ScholarMatch",install_btn:"Installeren",today:"Vandaag",this_week:"Deze week",next_weeks:"Komende 3 weken",later:"Later",not_ready:"ontbreekt",ready:"✓ Klaar",docs_have:"Mijn documenten",apply:"Aanvragen ↗",essay_help:"✦ Opstel hulp",status_not:"Niet gestart",status_prog:"Bezig",status_sub:"Ingediend",status_won:"Gewonnen ✓",status_lost:"Niet geselecteerd"},
+bg:{ob1_title:"Намери стипендии, за които се класираш",ob1_sub:"3 бързи въпроса. ScholarMatch класира всяка възможност по твоята реална допустимост.",feat1:"Персонализиран match score",feat2:"Проследяване на дедлайни и планове",feat3:"AI есе структури при поискване",feat4:"Работи на всяко устройство",get_started:"Започни →",ob2_title:"Лична информация",ob2_sub:"За филтриране по местоположение и гражданство.",lbl_name:"Пълно име",lbl_country:"Държава",lbl_region:"Регион",lbl_citizenship:"Гражданство",lbl_dob:"Дата на раждане",back:"Назад",continue:"Продължи →",ob3_title:"Академичен профил",ob3_sub:"GPA и специалността са най-важните фактори.",lbl_school:"Училище / Университет",lbl_year:"Година",lbl_gpa:"GPA",lbl_major:"Специалност",ob4_title:"Дейности",ob4_sub:"Всеки елемент отключва повече стипендии.",lbl_activities:"Дейности",act_leadership:"Лидерство",act_volunteer:"Доброволчество",act_research:"Изследвания",act_sports:"Спорт",act_arts:"Изкуство",act_competition:"Конкурси",act_entre:"Предприемачество",act_community:"Обществена дейност",lbl_financial:"Финансова нужда",fin_high:"Висока",fin_med:"Средна",fin_low:"Без нужда",lbl_firstgen:"Първо поколение?",yes:"Да",no:"Не",see_matches:"Виж съвпаденията →",tab_dashboard:"Табло",tab_matches:"Съвпадения",tab_pipeline:"Pipeline",tab_planner:"Планер",tab_docs:"Документи",tab_profile:"Профил",total_value:"Обща стойност",stat_matched:"Съвпадения",stat_urgent:"Спешни",stat_avg:"Ср. score",stat_profile:"Профил",top_opps:"Топ възможности",gen_strategy:"Генерирай стратегия",pipeline_sub:"Проследявай всяко кандидатстване",pl_not:"Не е започнато",pl_prog:"В процес",pl_sub:"Изпратено",pl_won:"Спечелено/Изгубено",pipeline_summary:"Обобщение",won_so_far:"спечелени",planner_sub:"Автоматично от дедлайните",gen_plan:"Генерирай план с AI",docs_sub:"Проследи документите си",profile_sub:"Захранва matching engine-а",profile_strength:"Сила на профила",edit_profile:"Редактирай профил",improve_ai:"Подобри с AI",generating:"Генерира се...",copy:"Копирай",close:"Затвори",filter_all:"Всички",filter_urgent:"🔴 Спешни",filter_high:"⭐ 85%+",filter_noessay:"Без есе",filter_need:"По нужда",filter_intl:"Международни",matched_sub:"стипендии съвпадат",install_msg:"📱 Инсталирай ScholarMatch",install_btn:"Инсталирай",today:"Днес",this_week:"Тази седмица",next_weeks:"Следващите 3 седмици",later:"По-късно",not_ready:"липсва",ready:"✓ Готово",docs_have:"Моите документи",apply:"Кандидатствай ↗",essay_help:"✦ Помощ с есе",status_not:"Не е започнато",status_prog:"В процес",status_sub:"Изпратено",status_won:"Спечелено ✓",status_lost:"Не е избрано"}};
 
-let currentLang = localStorage.getItem('sm_lang') || 'en';
-function t(key){ return (LANGS[currentLang]||LANGS.en)[key] || LANGS.en[key] || key; }
-function setLang(lang){
-  currentLang = lang;
-  localStorage.setItem('sm_lang', lang);
-  document.getElementById('ob-lang').value = lang;
-  const appLang = document.getElementById('app-lang');
-  if(appLang) appLang.value = lang;
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    el.textContent = t(key);
-  });
-  if(profile) renderDashboard();
+let currentLang=localStorage.getItem('sm_lang')||'en';
+function t(k){return(LANGS[currentLang]||LANGS.en)[k]||LANGS.en[k]||k;}
+function setLang(l){
+  currentLang=l;localStorage.setItem('sm_lang',l);
+  document.getElementById('ob-lang').value=l;
+  const al=document.getElementById('app-lang');if(al)al.value=l;
+  document.querySelectorAll('[data-i18n]').forEach(el=>el.textContent=t(el.getAttribute('data-i18n')));
+  if(profile)renderDashboard();
 }
 
-// ══════════════════════════════════════════
-// SCHOLARSHIP DATABASE
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
+// SCHOLARSHIP DATABASE — 2026 deadlines
+// ════════════════════════════════════════
 const DB=[
-  {id:1,title:"Gates Scholarship",provider:"Bill & Melinda Gates Foundation",amount:15000,deadline:"2025-09-15",gpaMin:3.3,fields:["CS","ENG","MED","BIO","BUS","MATH","OTHER"],citizenship:["US"],needBased:true,essay:true,rec:true,activities:["leadership","community"],desc:"Full scholarship for exceptional, low-income minority high school seniors."},
-  {id:2,title:"Future Leaders Fund",provider:"Coca-Cola Scholars Foundation",amount:5000,deadline:"2025-10-01",gpaMin:3.0,fields:["CS","ENG","BUS","LAW","ARTS","EDUC","SOC","OTHER"],citizenship:["US","PERMANENT"],needBased:false,essay:true,rec:true,activities:["leadership","community","volunteer"],desc:"For students who demonstrate leadership and community involvement."},
-  {id:3,title:"STEM Excellence Award",provider:"NSF Partners Program",amount:3500,deadline:"2025-09-20",gpaMin:3.5,fields:["CS","ENG","BIO","MATH"],citizenship:["US","PERMANENT","INTERNATIONAL"],needBased:false,essay:false,rec:false,activities:["research"],desc:"Merit-based award for outstanding STEM students."},
-  {id:4,title:"First Generation Scholars",provider:"College Board",amount:4000,deadline:"2025-10-05",gpaMin:2.8,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["US","PERMANENT"],needBased:true,essay:true,rec:false,activities:[],desc:"Supporting first-generation college students nationwide."},
-  {id:5,title:"AES Engineering Grant",provider:"AES Corporation",amount:2500,deadline:"2025-09-10",gpaMin:3.0,fields:["ENG","CS","MATH"],citizenship:["US"],needBased:false,essay:false,rec:false,activities:[],desc:"For students pursuing engineering degrees."},
-  {id:6,title:"Tech Diversity Fund",provider:"Diversity in Tech Alliance",amount:2500,deadline:"2025-11-01",gpaMin:3.0,fields:["CS","ENG","MATH"],citizenship:["US","PERMANENT","INTERNATIONAL","EU"],needBased:false,essay:false,rec:false,activities:["community","volunteer"],desc:"Supporting underrepresented students in technology."},
-  {id:7,title:"NSF Graduate Fellowship",provider:"National Science Foundation",amount:37000,deadline:"2025-10-15",gpaMin:3.5,fields:["CS","ENG","BIO","MATH"],citizenship:["US","PERMANENT"],needBased:false,essay:true,rec:true,activities:["research"],desc:"Prestigious fellowship for graduate research in STEM."},
-  {id:8,title:"Rotary Foundation",provider:"Rotary International",amount:10000,deadline:"2025-11-15",gpaMin:3.0,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["US","PERMANENT","INTERNATIONAL","EU"],needBased:false,essay:true,rec:true,activities:["leadership","community","volunteer"],desc:"For students committed to peace and international understanding."},
-  {id:9,title:"Dell Scholars Program",provider:"Michael & Susan Dell Foundation",amount:6000,deadline:"2025-12-01",gpaMin:2.4,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["US"],needBased:true,essay:true,rec:false,activities:[],desc:"For students who have overcome adversity."},
-  {id:10,title:"Google Generation Scholarship",provider:"Google",amount:10000,deadline:"2025-12-15",gpaMin:3.2,fields:["CS","ENG","MATH"],citizenship:["US","PERMANENT","INTERNATIONAL","EU"],needBased:false,essay:true,rec:false,activities:["community","entrepreneurship"],desc:"For students with a passion for technology and leadership."},
-  {id:11,title:"Jack Kent Cooke Award",provider:"Jack Kent Cooke Foundation",amount:55000,deadline:"2025-11-15",gpaMin:3.5,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["US","PERMANENT"],needBased:true,essay:true,rec:true,activities:["leadership","research"],desc:"For high-achieving students with financial need."},
-  {id:12,title:"Fulbright Foreign Student",provider:"U.S. Department of State",amount:30000,deadline:"2025-10-12",gpaMin:3.0,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["INTERNATIONAL","EU"],needBased:false,essay:true,rec:true,activities:["research","community"],desc:"For international students to study in the U.S."},
-  {id:13,title:"DAAD Scholarship Germany",provider:"DAAD",amount:12000,deadline:"2025-10-31",gpaMin:3.0,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["INTERNATIONAL","EU","US"],needBased:false,essay:true,rec:true,activities:["research"],desc:"For international students to study at German universities."},
-  {id:14,title:"Erasmus+ Scholarship",provider:"European Commission",amount:8000,deadline:"2026-01-31",gpaMin:2.5,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["EU"],needBased:false,essay:false,rec:false,activities:[],desc:"For EU students to study in another EU country."},
-  {id:15,title:"Rhodes Scholarship",provider:"Rhodes Trust",amount:70000,deadline:"2025-10-01",gpaMin:3.7,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["US","CA","AU"],needBased:false,essay:true,rec:true,activities:["leadership","community","sports","research"],desc:"Study at Oxford — oldest international scholarship."},
-  {id:16,title:"Schwarzman Scholars",provider:"Schwarzman College",amount:75000,deadline:"2025-09-20",gpaMin:3.5,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["US","CA","AU","UK","INTERNATIONAL","EU"],needBased:false,essay:true,rec:true,activities:["leadership","entrepreneurship","research"],desc:"For future leaders to study in China."},
-  {id:17,title:"Paul & Daisy Soros Fellowship",provider:"Soros Fellowships",amount:90000,deadline:"2025-10-28",gpaMin:3.0,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["PERMANENT","INTERNATIONAL"],needBased:false,essay:true,rec:true,activities:["leadership","community"],desc:"For immigrants and children of immigrants."},
-  {id:18,title:"Adobe Research Scholarship",provider:"Adobe",amount:10000,deadline:"2025-11-01",gpaMin:3.0,fields:["CS","ENG","ARTS","MATH"],citizenship:["US","PERMANENT","INTERNATIONAL"],needBased:false,essay:true,rec:false,activities:["research","arts"],desc:"For students at the intersection of CS and creative fields."},
-  {id:19,title:"Horatio Alger Scholarship",provider:"Horatio Alger Association",amount:25000,deadline:"2025-10-25",gpaMin:2.0,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["US"],needBased:true,essay:true,rec:true,activities:["community"],desc:"For students who have overcome adversity."},
-  {id:20,title:"Elks National Foundation",provider:"Benevolent Order of Elks",amount:12000,deadline:"2025-11-30",gpaMin:3.0,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["US"],needBased:false,essay:true,rec:true,activities:["community","volunteer","leadership"],desc:"Scholarship, leadership, and community service."}
+  {id:1,title:"Gates Scholarship",provider:"Bill & Melinda Gates Foundation",amount:15000,deadline:"2026-09-15",gpaMin:3.3,fields:["CS","ENG","MED","BIO","BUS","MATH","OTHER"],citizenship:["US"],needBased:true,essay:true,rec:true,activities:["leadership","community"],desc:"Full scholarship for exceptional, low-income minority high school seniors."},
+  {id:2,title:"Future Leaders Fund",provider:"Coca-Cola Scholars Foundation",amount:5000,deadline:"2026-10-01",gpaMin:3.0,fields:["CS","ENG","BUS","LAW","ARTS","EDUC","SOC","OTHER"],citizenship:["US","PERMANENT"],needBased:false,essay:true,rec:true,activities:["leadership","community","volunteer"],desc:"For students who demonstrate leadership and community involvement."},
+  {id:3,title:"STEM Excellence Award",provider:"NSF Partners Program",amount:3500,deadline:"2026-09-20",gpaMin:3.5,fields:["CS","ENG","BIO","MATH"],citizenship:["US","PERMANENT","INTERNATIONAL"],needBased:false,essay:false,rec:false,activities:["research"],desc:"Merit-based award for outstanding STEM students."},
+  {id:4,title:"First Generation Scholars",provider:"College Board",amount:4000,deadline:"2026-10-05",gpaMin:2.8,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["US","PERMANENT"],needBased:true,essay:true,rec:false,activities:[],desc:"Supporting first-generation college students nationwide."},
+  {id:5,title:"AES Engineering Grant",provider:"AES Corporation",amount:2500,deadline:"2026-09-10",gpaMin:3.0,fields:["ENG","CS","MATH"],citizenship:["US"],needBased:false,essay:false,rec:false,activities:[],desc:"For students pursuing engineering degrees."},
+  {id:6,title:"Tech Diversity Fund",provider:"Diversity in Tech Alliance",amount:2500,deadline:"2026-11-01",gpaMin:3.0,fields:["CS","ENG","MATH"],citizenship:["US","PERMANENT","INTERNATIONAL","EU"],needBased:false,essay:false,rec:false,activities:["community","volunteer"],desc:"Supporting underrepresented students in technology."},
+  {id:7,title:"NSF Graduate Fellowship",provider:"National Science Foundation",amount:37000,deadline:"2026-10-15",gpaMin:3.5,fields:["CS","ENG","BIO","MATH"],citizenship:["US","PERMANENT"],needBased:false,essay:true,rec:true,activities:["research"],desc:"Prestigious fellowship for graduate research in STEM."},
+  {id:8,title:"Rotary Foundation",provider:"Rotary International",amount:10000,deadline:"2026-11-15",gpaMin:3.0,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["US","PERMANENT","INTERNATIONAL","EU"],needBased:false,essay:true,rec:true,activities:["leadership","community","volunteer"],desc:"For students committed to peace and international understanding."},
+  {id:9,title:"Dell Scholars Program",provider:"Michael & Susan Dell Foundation",amount:6000,deadline:"2026-12-01",gpaMin:2.4,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["US"],needBased:true,essay:true,rec:false,activities:[],desc:"For students who have overcome adversity."},
+  {id:10,title:"Google Generation Scholarship",provider:"Google",amount:10000,deadline:"2026-12-15",gpaMin:3.2,fields:["CS","ENG","MATH"],citizenship:["US","PERMANENT","INTERNATIONAL","EU"],needBased:false,essay:true,rec:false,activities:["community","entrepreneurship"],desc:"For students with a passion for technology and leadership."},
+  {id:11,title:"Jack Kent Cooke Award",provider:"Jack Kent Cooke Foundation",amount:55000,deadline:"2026-11-15",gpaMin:3.5,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["US","PERMANENT"],needBased:true,essay:true,rec:true,activities:["leadership","research"],desc:"For high-achieving students with financial need."},
+  {id:12,title:"Fulbright Foreign Student",provider:"U.S. Department of State",amount:30000,deadline:"2026-10-12",gpaMin:3.0,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["INTERNATIONAL","EU"],needBased:false,essay:true,rec:true,activities:["research","community"],desc:"For international students to study in the U.S."},
+  {id:13,title:"DAAD Scholarship",provider:"DAAD Germany",amount:12000,deadline:"2026-10-31",gpaMin:3.0,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["INTERNATIONAL","EU","US"],needBased:false,essay:true,rec:true,activities:["research"],desc:"For international students to study at German universities."},
+  {id:14,title:"Erasmus+ Scholarship",provider:"European Commission",amount:8000,deadline:"2027-01-31",gpaMin:2.5,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["EU"],needBased:false,essay:false,rec:false,activities:[],desc:"For EU students to study in another EU country."},
+  {id:15,title:"Rhodes Scholarship",provider:"Rhodes Trust",amount:70000,deadline:"2026-10-01",gpaMin:3.7,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["US","CA","AU"],needBased:false,essay:true,rec:true,activities:["leadership","community","sports","research"],desc:"Study at Oxford — oldest international scholarship."},
+  {id:16,title:"Schwarzman Scholars",provider:"Schwarzman College",amount:75000,deadline:"2026-09-20",gpaMin:3.5,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["US","CA","AU","UK","INTERNATIONAL","EU"],needBased:false,essay:true,rec:true,activities:["leadership","entrepreneurship","research"],desc:"For future leaders to study in China."},
+  {id:17,title:"Paul & Daisy Soros Fellowship",provider:"Soros Fellowships",amount:90000,deadline:"2026-10-28",gpaMin:3.0,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["PERMANENT","INTERNATIONAL"],needBased:false,essay:true,rec:true,activities:["leadership","community"],desc:"For immigrants and children of immigrants."},
+  {id:18,title:"Adobe Research Scholarship",provider:"Adobe",amount:10000,deadline:"2026-11-01",gpaMin:3.0,fields:["CS","ENG","ARTS","MATH"],citizenship:["US","PERMANENT","INTERNATIONAL"],needBased:false,essay:true,rec:false,activities:["research","arts"],desc:"For students at the intersection of CS and creative fields."},
+  {id:19,title:"Horatio Alger Scholarship",provider:"Horatio Alger Association",amount:25000,deadline:"2026-10-25",gpaMin:2.0,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["US"],needBased:true,essay:true,rec:true,activities:["community"],desc:"For students who have overcome adversity."},
+  {id:20,title:"Elks National Foundation",provider:"Benevolent Order of Elks",amount:12000,deadline:"2026-11-30",gpaMin:3.0,fields:["CS","ENG","MED","BIO","BUS","LAW","ARTS","EDUC","SOC","MATH","OTHER"],citizenship:["US"],needBased:false,essay:true,rec:true,activities:["community","volunteer","leadership"],desc:"Scholarship, leadership, and community service."}
 ];
 
-// ══════════════════════════════════════════
-// STATE & SYNC
-// ══════════════════════════════════════════
-let profile=null, status={}, tasks={}, wonAmt=0;
-let userId = localStorage.getItem('sm_uid');
-if(!userId){ userId = crypto.randomUUID(); localStorage.setItem('sm_uid', userId); }
+// ════════════════════════════════════════
+// STATE & CLOUD SYNC
+// ════════════════════════════════════════
+let profile=null,status={},tasks={},wonAmt=0;
+let userId=localStorage.getItem('sm_uid');
+if(!userId){userId=crypto.randomUUID();localStorage.setItem('sm_uid',userId);}
 
-function setSyncDot(state){
-  const d = document.getElementById('sync-dot');
-  if(!d) return;
-  d.className = 'sync-dot ' + state;
+function pip(state){const d=document.getElementById('sync-pip');if(d)d.className='sync-pip '+state;}
+
+async function saveCloud(){
+  pip('syncing');
+  try{
+    await fetch('/api/profile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId,profile})});
+    await fetch('/api/state',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId,state:{status,tasks,wonAmt}})});
+    pip('synced');
+  }catch(e){pip('');}
 }
-
-async function saveToCloud(){
-  setSyncDot('syncing');
-  try {
-    await fetch('/api/profile', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: userId, profile }) });
-    await fetch('/api/state', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ user_id: userId, state: { status, tasks, wonAmt } }) });
-    setSyncDot('synced');
-  } catch(e){ setSyncDot(''); }
+async function loadCloud(){
+  try{
+    const[pr,st]=await Promise.all([fetch('/api/profile/'+userId).then(r=>r.json()),fetch('/api/state/'+userId).then(r=>r.json())]);
+    if(pr.data?.profile)profile=pr.data.profile;
+    if(st.data?.state){const s=st.data.state;status=s.status||{};tasks=s.tasks||{};wonAmt=s.wonAmt||0;}
+  }catch(e){}
 }
+function saveLocal(){localStorage.setItem('sm_profile',JSON.stringify(profile));localStorage.setItem('sm_status',JSON.stringify(status));localStorage.setItem('sm_tasks',JSON.stringify(tasks));localStorage.setItem('sm_won',wonAmt);}
+function loadLocal(){try{const p=localStorage.getItem('sm_profile');if(p){profile=JSON.parse(p);status=JSON.parse(localStorage.getItem('sm_status')||'{}');tasks=JSON.parse(localStorage.getItem('sm_tasks')||'{}');wonAmt=parseInt(localStorage.getItem('sm_won')||'0');return true;}}catch(e){}return false;}
+let saveT=null;
+function save(){saveLocal();clearTimeout(saveT);saveT=setTimeout(saveCloud,1500);}
 
-async function loadFromCloud(){
-  try {
-    const [pr, st] = await Promise.all([
-      fetch('/api/profile/'+userId).then(r=>r.json()),
-      fetch('/api/state/'+userId).then(r=>r.json())
-    ]);
-    if(pr.data?.profile) profile = pr.data.profile;
-    if(st.data?.state){ const s=st.data.state; status=s.status||{}; tasks=s.tasks||{}; wonAmt=s.wonAmt||0; }
-  } catch(e){}
-}
-
-function saveLocal(){
-  localStorage.setItem('sm_profile', JSON.stringify(profile));
-  localStorage.setItem('sm_status', JSON.stringify(status));
-  localStorage.setItem('sm_tasks', JSON.stringify(tasks));
-  localStorage.setItem('sm_won', wonAmt);
-}
-
-function loadLocal(){
-  try {
-    const p = localStorage.getItem('sm_profile');
-    if(p){ profile=JSON.parse(p); status=JSON.parse(localStorage.getItem('sm_status')||'{}'); tasks=JSON.parse(localStorage.getItem('sm_tasks')||'{}'); wonAmt=parseInt(localStorage.getItem('sm_won')||'0'); return true; }
-  } catch(e){}
-  return false;
-}
-
-let saveTimer=null;
-function save(){
-  saveLocal();
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(saveToCloud, 1500);
-}
-
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 // ONBOARDING
-// ══════════════════════════════════════════
-let step=1;
-const STEPS=4;
-function renderDots(){ document.getElementById('step-dots').innerHTML=Array.from({length:STEPS},(_,i)=>`<div class="step-dot${i<step?' done':''}"></div>`).join(''); }
-function nextStep(){ document.getElementById('step-'+step).classList.remove('active'); step++; document.getElementById('step-'+step).classList.add('active'); renderDots(); }
-function prevStep(){ document.getElementById('step-'+step).classList.remove('active'); step--; document.getElementById('step-'+step).classList.add('active'); renderDots(); }
-function getActivities(){ return Array.from(document.querySelectorAll('#act-grid input:checked')).map(e=>e.value); }
+// ════════════════════════════════════════
+let step=1;const STEPS=4;
+function renderDots(){document.getElementById('dots').innerHTML=Array.from({length:STEPS},(_,i)=>`<div class="dot${i<step?' done':''}"></div>`).join('');}
+function nextStep(){document.getElementById('step-'+step).classList.remove('active');step++;document.getElementById('step-'+step).classList.add('active');renderDots();}
+function prevStep(){document.getElementById('step-'+step).classList.remove('active');step--;document.getElementById('step-'+step).classList.add('active');renderDots();}
+function getActs(){return Array.from(document.querySelectorAll('#act-grid input:checked')).map(e=>e.value);}
 
 function finishOnboarding(){
-  profile={
-    name: document.getElementById('p-name').value||'Student',
-    country: document.getElementById('p-country').value,
-    state: document.getElementById('p-state').value,
-    citizenship: document.getElementById('p-citizenship').value,
-    dob: document.getElementById('p-dob').value,
-    school: document.getElementById('p-school').value,
-    year: document.getElementById('p-year').value,
-    gpa: parseFloat(document.getElementById('p-gpa').value)||3.0,
-    major: document.getElementById('p-major').value,
-    activities: getActivities(),
-    financial: document.getElementById('p-financial').value,
-    firstgen: document.getElementById('p-firstgen').value
-  };
-  DB.forEach(s=>{ if(!status[s.id]) status[s.id]='not'; });
+  profile={name:document.getElementById('p-name').value||'Student',country:document.getElementById('p-country').value,state:document.getElementById('p-state').value,citizenship:document.getElementById('p-citizenship').value,dob:document.getElementById('p-dob').value,school:document.getElementById('p-school').value,year:document.getElementById('p-year').value,gpa:parseFloat(document.getElementById('p-gpa').value)||3.0,major:document.getElementById('p-major').value,activities:getActs(),financial:document.getElementById('p-financial').value,firstgen:document.getElementById('p-firstgen').value};
+  DB.forEach(s=>{if(!status[s.id])status[s.id]='not';});
   save();
   document.getElementById('onboarding').style.display='none';
   document.getElementById('app').style.display='flex';
   initApp();
 }
+function resetProfile(){if(!confirm('Edit profile? Your application data will be kept.'))return;document.getElementById('onboarding').style.display='flex';document.getElementById('app').style.display='none';step=1;document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));document.getElementById('step-1').classList.add('active');renderDots();}
 
-function resetProfile(){
-  if(!confirm('Edit profile? Your application data will be kept.')) return;
-  document.getElementById('onboarding').style.display='flex';
-  document.getElementById('app').style.display='none';
-  step=1; document.querySelectorAll('.step').forEach(s=>s.classList.remove('active')); document.getElementById('step-1').classList.add('active'); renderDots();
-}
-
-document.querySelectorAll('.cb-item').forEach(item=>{
-  item.addEventListener('click',function(){const cb=this.querySelector('input');cb.checked=!cb.checked;this.classList.toggle('checked',cb.checked)});
+document.querySelectorAll('.cbi').forEach(item=>{
+  item.addEventListener('click',function(){const cb=this.querySelector('input');cb.checked=!cb.checked;this.classList.toggle('checked',cb.checked);});
   item.querySelector('input').addEventListener('click',e=>e.stopPropagation());
 });
 
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 // MATCHING ENGINE
-// ══════════════════════════════════════════
-function daysLeft(d){ return Math.ceil((new Date(d)-new Date())/(864e5)); }
-
-function score(s,p){
-  let sc=0, reasons=[], bad=false;
-  if(s.citizenship.length && !s.citizenship.includes(p.citizenship)) bad=true;
-  if(p.gpa < s.gpaMin) bad=true;
-  if(s.fields.includes(p.major)){sc+=25;reasons.push('Field match')}else if(s.fields.includes('OTHER'))sc+=8;
-  if(s.citizenship.includes(p.citizenship)){sc+=20;reasons.push('Citizenship eligible')}else if(!s.citizenship.length)sc+=12;
-  const gm=p.gpa-s.gpaMin; sc+=Math.max(0,Math.min(15,Math.round(gm*10))); if(gm>=0.5)reasons.push(`GPA ${p.gpa} ≥ ${s.gpaMin}`);
-  const am=s.activities.filter(a=>p.activities.includes(a));
-  if(am.length){sc+=Math.min(15,am.length*7);reasons.push(am.map(a=>a[0].toUpperCase()+a.slice(1)).join(' & ')+' match')}
-  if(s.needBased&&(p.financial==='high'||p.financial==='medium')){sc+=10;reasons.push('Financial need matches')}else if(!s.needBased)sc+=5;
-  if(p.firstgen==='yes'&&s.needBased){sc+=5;reasons.push('First-gen eligible')}
-  const days=daysLeft(s.deadline);
-  if(days>0&&days<=30)sc+=10;else if(days>30&&days<=90)sc+=6;else if(days>0)sc+=3;
-  return{sc:Math.min(98,Math.max(0,sc)),reasons,bad,days};
+// ════════════════════════════════════════
+function daysLeft(d){return Math.ceil((new Date(d)-new Date())/864e5);}
+function calcScore(s,p){
+  let sc=0,reasons=[],bad=false;
+  if(s.citizenship.length&&!s.citizenship.includes(p.citizenship))bad=true;
+  if(p.gpa<s.gpaMin)bad=true;
+  if(s.fields.includes(p.major)){sc+=25;reasons.push('Field match');}else if(s.fields.includes('OTHER'))sc+=8;
+  if(s.citizenship.includes(p.citizenship)){sc+=20;reasons.push('Citizenship eligible');}else if(!s.citizenship.length)sc+=12;
+  const gm=p.gpa-s.gpaMin;sc+=Math.max(0,Math.min(15,Math.round(gm*10)));if(gm>=0.5)reasons.push(`GPA ${p.gpa} ≥ ${s.gpaMin}`);
+  const am=s.activities.filter(a=>p.activities.includes(a));if(am.length){sc+=Math.min(15,am.length*7);reasons.push(am.map(a=>a[0].toUpperCase()+a.slice(1)).join(' & ')+' match');}
+  if(s.needBased&&(p.financial==='high'||p.financial==='medium')){sc+=10;reasons.push('Financial need matches');}else if(!s.needBased)sc+=5;
+  if(p.firstgen==='yes'&&s.needBased){sc+=5;reasons.push('First-gen eligible');}
+  const days=daysLeft(s.deadline);if(days>0&&days<=30)sc+=10;else if(days>30&&days<=90)sc+=6;else if(days>0)sc+=3;
+  return{sc:Math.min(98,Math.max(0,sc)),reasons,bad,days:daysLeft(s.deadline)};
 }
+function getMatched(){if(!profile)return[];return DB.map(s=>{const r=calcScore(s,profile);return{...s,...r,score:r.sc};}).filter(s=>!s.bad&&s.days>0).sort((a,b)=>b.score-a.score);}
 
-function getMatched(){
-  if(!profile) return [];
-  return DB.map(s=>{ const r=score(s,profile); return{...s,...r,score:r.sc}; })
-    .filter(s=>!s.bad&&s.days>0)
-    .sort((a,b)=>b.score-a.score);
-}
-
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 // RENDER HELPERS
-// ══════════════════════════════════════════
-function fmtDate(d){ return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
-function scClass(n){ return n>=75?'high':n>=55?'medium':'low'; }
+// ════════════════════════════════════════
+function fmtDate(d){return new Date(d).toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+function scCls(n){return n>=75?'hi':n>=55?'md':'lo';}
 
-function renderCard(s, compact=false){
-  const urg=s.days<=14;
-  const cur=status[s.id]||'not';
-  const statusOpts = [
-    ['not',t('status_not')],['progress',t('status_prog')],['submitted',t('status_sub')],['won',t('status_won')],['lost',t('status_lost')]
-  ];
-  return `<div class="sch-card${urg?' urgent':''}">
-    ${urg?`<div class="urg-badge">🔴 ${s.days}d</div>`:''}
-    <div class="sch-header">
+function renderCard(s,compact=false){
+  const urg=s.days<=14;const cur=status[s.id]||'not';
+  const opts=[['not',t('status_not')],['progress',t('status_prog')],['submitted',t('status_sub')],['won',t('status_won')],['lost',t('status_lost')]];
+  return`<div class="sch${urg?' urgent':''}">
+    ${urg?`<div class="urg-pip">🔴 ${s.days}d</div>`:''}
+    <div class="sch-hd">
       <div><div class="sch-title">${s.title}</div><div class="sch-provider">${s.provider}</div></div>
-      <div class="score-ring ${scClass(s.score)}">${s.score}%</div>
+      <div class="score ${scCls(s.score)}">${s.score}%</div>
     </div>
-    <div class="sch-tags">
-      <span class="tag tag-award">💰 $${s.amount.toLocaleString()}</span>
-      <span class="tag ${urg?'tag-urgent':'tag-dl'}">📅 ${fmtDate(s.deadline)}</span>
-      ${!s.essay?`<span class="tag tag-noessay">${t('filter_noessay')}</span>`:''}
-      ${s.needBased?`<span class="tag tag-award">💰 Need</span>`:''}
+    <div class="tags">
+      <span class="tag tag-money">$${s.amount.toLocaleString()}</span>
+      <span class="tag ${urg?'tag-urg':'tag-dl'}">📅 ${fmtDate(s.deadline)} · ${s.days}d</span>
+      ${!s.essay?`<span class="tag tag-ne">${t('filter_noessay')}</span>`:''}
+      ${s.needBased?'<span class="tag tag-field">Need-based</span>':''}
     </div>
     <div class="sch-desc">${s.desc}</div>
-    ${!compact?`<div class="sch-reasons">${s.reasons.slice(0,4).map(r=>`<span class="reason">${r}</span>`).join('')}</div>`:''}
+    ${!compact?`<div class="reasons">${s.reasons.slice(0,4).map(r=>`<span class="reason">${r}</span>`).join('')}</div>`:''}
     <div class="sch-actions">
-      <select class="status-sel" onchange="updateStatus(${s.id},this.value)">
-        ${statusOpts.map(([v,l])=>`<option value="${v}"${cur===v?' selected':''}>${l}</option>`).join('')}
-      </select>
-      ${!compact?`<button class="btn btn-ai" style="padding:5px 10px;font-size:12px;" onclick="openAI('essay',${s.id})">${t('essay_help')}</button>`:''}
-      <a href="https://www.google.com/search?q=${encodeURIComponent(s.title+' scholarship apply')}" target="_blank" class="btn btn-outline" style="padding:5px 10px;font-size:12px;">${t('apply')}</a>
+      <select class="status-sel" onchange="updateStatus(${s.id},this.value)">${opts.map(([v,l])=>`<option value="${v}"${cur===v?' selected':''}>${l}</option>`).join('')}</select>
+      ${!compact?`<button class="btn btn-ai btn-sm" onclick="openAI('essay',${s.id})">${t('essay_help')}</button>`:''}
+      <a href="https://www.google.com/search?q=${encodeURIComponent(s.title+' scholarship apply 2026')}" target="_blank" class="btn btn-ghost btn-sm">${t('apply')}</a>
     </div>
   </div>`;
 }
 
-function updateStatus(id, val){
+function updateStatus(id,val){
   const s=DB.find(x=>x.id===id);
-  if(val==='won'&&status[id]!=='won'&&s) wonAmt+=s.amount;
-  else if(status[id]==='won'&&val!=='won'&&s) wonAmt=Math.max(0,wonAmt-s.amount);
-  status[id]=val; save();
-  renderPipeline(); renderDashboard();
+  if(val==='won'&&status[id]!=='won'&&s)wonAmt+=s.amount;
+  else if(status[id]==='won'&&val!=='won'&&s)wonAmt=Math.max(0,wonAmt-s.amount);
+  status[id]=val;save();renderPipeline();renderDashboard();
 }
 
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 // TABS
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 function showTab(name){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.ntab').forEach(t=>t.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   document.getElementById('tab-'+name).classList.add('active');
-  if(name==='matches') renderMatches('all');
-  if(name==='pipeline') renderPipeline();
-  if(name==='planner') renderPlanner();
-  if(name==='docs') renderDocs();
-  if(name==='profile') renderProfile();
+  if(name==='matches')renderMatches('all');
+  if(name==='pipeline')renderPipeline();
+  if(name==='planner')renderPlanner();
+  if(name==='docs')renderDocs();
+  if(name==='profile')renderProfile();
 }
 
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 // DASHBOARD
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 function renderDashboard(){
   const m=getMatched();
   const total=m.reduce((a,s)=>a+s.amount,0);
@@ -806,220 +848,130 @@ function renderDashboard(){
   document.getElementById('st-avg').textContent=avg+'%';
   document.getElementById('st-profile').textContent=calcStrength()+'%';
   const n=profile?.name||'Student';
-  document.getElementById('hdr-name').textContent=n.split(' ')[0];
-  document.getElementById('hdr-avatar').textContent=n.charAt(0).toUpperCase();
-  document.getElementById('dash-top').innerHTML=m.slice(0,5).map(s=>renderCard(s,true)).join('')||`<div class="empty">${t('ai_placeholder')}</div>`;
+  document.getElementById('hdr-nm').textContent=n.split(' ')[0];
+  document.getElementById('hdr-av').textContent=n.charAt(0).toUpperCase();
+  document.getElementById('dash-top').innerHTML=m.slice(0,5).map(s=>renderCard(s,true)).join('')||`<div class="empty">Complete your profile to see matched scholarships.</div>`;
 }
 
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 // MATCHES
-// ══════════════════════════════════════════
-function setFilter(f,btn){
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active'); renderMatches(f);
-}
+// ════════════════════════════════════════
+function setFilter(f,btn){document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderMatches(f);}
 function renderMatches(f){
   let m=getMatched();
-  if(f==='urgent') m=m.filter(s=>s.days<=14);
-  else if(f==='high') m=m.filter(s=>s.score>=85);
-  else if(f==='noessay') m=m.filter(s=>!s.essay);
-  else if(f==='need') m=m.filter(s=>s.needBased);
-  else if(f==='intl') m=m.filter(s=>s.citizenship.includes('INTERNATIONAL')||s.citizenship.includes('EU'));
+  if(f==='urgent')m=m.filter(s=>s.days<=14);
+  else if(f==='high')m=m.filter(s=>s.score>=85);
+  else if(f==='noessay')m=m.filter(s=>!s.essay);
+  else if(f==='need')m=m.filter(s=>s.needBased);
+  else if(f==='intl')m=m.filter(s=>s.citizenship.includes('INTERNATIONAL')||s.citizenship.includes('EU'));
   document.getElementById('matches-sub').textContent=`${m.length} ${t('matched_sub')}`;
-  document.getElementById('matches-list').innerHTML=m.map(s=>renderCard(s)).join('')||`<div class="empty">${t('filter_all')}: 0</div>`;
+  document.getElementById('matches-list').innerHTML=m.map(s=>renderCard(s)).join('')||`<div class="empty">No scholarships match this filter.</div>`;
 }
 
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 // PIPELINE
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 function renderPipeline(){
-  const m=getMatched();
-  const cols={not:[],progress:[],submitted:[],won:[]};
-  m.forEach(s=>{const st=status[s.id]||'not';const k=st==='lost'?'won':(cols[st]!==undefined?st:'not');cols[k].push({...s,st})});
-  const ri=arr=>arr.map(s=>{
-    const cls=s.st==='won'?'pi-won':s.st==='lost'?'pi-lost':s.st==='submitted'?'pi-sub':s.st==='progress'?'pi-prog':'pi-not';
-    return`<div class="pi ${cls}"><div class="pi-title">${s.title}</div><div class="pi-amt">$${s.amount.toLocaleString()}</div></div>`;
-  }).join('');
-  ['not','prog','sub','won'].forEach((k,i)=>{
-    const key=['not','progress','submitted','won'][i];
-    document.getElementById('pl-'+k).innerHTML=ri(cols[key]);
-    document.getElementById('pc-'+k).textContent=cols[key].length;
-  });
-  const total=m.reduce((a,s)=>a+s.amount,0);
-  const pct=total>0?Math.round((wonAmt/total)*100):0;
+  const m=getMatched();const cols={not:[],progress:[],submitted:[],won:[]};
+  m.forEach(s=>{const st=status[s.id]||'not';const k=st==='lost'?'won':(cols[st]!==undefined?st:'not');cols[k].push({...s,st});});
+  const ri=arr=>arr.map(s=>{const cls=s.st==='won'?'pi-won':s.st==='lost'?'pi-lost':s.st==='submitted'?'pi-sub':s.st==='progress'?'pi-prog':'pi-not';return`<div class="pi ${cls}"><div class="pi-title">${s.title}</div><div class="pi-amt">$${s.amount.toLocaleString()}</div></div>`;}).join('');
+  document.getElementById('pl-not').innerHTML=ri(cols.not);document.getElementById('pl-prog').innerHTML=ri(cols.progress);document.getElementById('pl-sub').innerHTML=ri(cols.submitted);document.getElementById('pl-won').innerHTML=ri(cols.won);
+  document.getElementById('pc-not').textContent=cols.not.length;document.getElementById('pc-prog').textContent=cols.progress.length;document.getElementById('pc-sub').textContent=cols.submitted.length;document.getElementById('pc-won').textContent=cols.won.length;
+  const total=m.reduce((a,s)=>a+s.amount,0);const pct=total>0?Math.round((wonAmt/total)*100):0;
   document.getElementById('pl-won-amt').textContent='$'+wonAmt.toLocaleString();
   document.getElementById('pl-pbar').style.width=pct+'%';
   document.getElementById('pl-hint').textContent=`of $${total.toLocaleString()} total (${pct}%)`;
 }
 
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 // PLANNER
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 function renderPlanner(){
-  const m=getMatched();
-  const buckets={today:[],week:[],next:[],later:[]};
-  m.forEach(s=>{
-    const st=status[s.id]||'not';
-    if(st==='won'||st==='lost') return;
-    const e={...s,st};
-    if(s.days<=3)buckets.today.push(e);
-    else if(s.days<=7)buckets.week.push(e);
-    else if(s.days<=21)buckets.next.push(e);
-    else buckets.later.push(e);
-  });
-  function mkTask(sid,text,meta){
-    const tid=`tk-${sid}-${text.replace(/\W/g,'')}`;
-    const done=tasks[tid];
-    return`<div class="task${done?' done-task':''}">
-      <div class="task-chk${done?' done':''}" onclick="toggleTask('${tid}',this)">${done?'✓':''}</div>
-      <div><div class="task-title">${text}</div><div class="task-meta">${meta}</div></div>
-    </div>`;
-  }
-  function mkSection(titleKey,emoji,items){
-    if(!items.length) return '';
-    const tks=items.map(s=>{
-      let h='';
-      if(s.st==='not') h+=mkTask(s.id,`Start — ${s.title}`,`${fmtDate(s.deadline)} · ${s.days}d left`);
-      if(s.essay&&s.st!=='submitted') h+=mkTask(s.id+'e',`Essay — ${s.title}`,`Required · ${fmtDate(s.deadline)}`);
-      if(s.rec&&s.st==='not') h+=mkTask(s.id+'r',`Recommendation — ${s.title}`,`Request early · ${fmtDate(s.deadline)}`);
-      return h;
-    }).join('');
-    return`<div class="plan-section"><div class="plan-title">${emoji} ${t(titleKey)}</div>${tks}</div>`;
-  }
-  const html=mkSection('today','🔴',buckets.today)+mkSection('this_week','🟡',buckets.week)+mkSection('next_weeks','🟢',buckets.next)+mkSection('later','📅',buckets.later.slice(0,5));
-  document.getElementById('planner-content').innerHTML=html||`<div class="empty">${t('planner_sub')}</div>`;
+  const m=getMatched();const b={today:[],week:[],next:[],later:[]};
+  m.forEach(s=>{const st=status[s.id]||'not';if(st==='won'||st==='lost')return;const e={...s,st};if(s.days<=3)b.today.push(e);else if(s.days<=7)b.week.push(e);else if(s.days<=21)b.next.push(e);else b.later.push(e);});
+  function mkT(sid,text,meta){const tid=`tk-${sid}-${text.replace(/\W/g,'')}`;const done=tasks[tid];return`<div class="task${done?' done-task':''}"><div class="chk${done?' done':''}" onclick="toggleTask('${tid}',this)">${done?'✓':''}</div><div><div class="task-title">${text}</div><div class="task-meta">${meta}</div></div></div>`;}
+  function mkS(lk,emoji,items){if(!items.length)return'';const tks=items.map(s=>{let h='';if(s.st==='not')h+=mkT(s.id,`Start — ${s.title}`,`${fmtDate(s.deadline)} · ${s.days}d left`);if(s.essay&&s.st!=='submitted')h+=mkT(s.id+'e',`Essay — ${s.title}`,`Required · ${fmtDate(s.deadline)}`);if(s.rec&&s.st==='not')h+=mkT(s.id+'r',`Recommendation — ${s.title}`,`Request early`);return h;}).join('');return`<div class="plan-sec"><div class="plan-lbl">${emoji} ${t(lk)}</div>${tks}</div>`;}
+  document.getElementById('planner-content').innerHTML=mkS('today','🔴',b.today)+mkS('this_week','🟡',b.week)+mkS('next_weeks','🟢',b.next)+mkS('later','⬜',b.later.slice(0,5))||`<div class="empty">${t('planner_sub')}</div>`;
 }
-function toggleTask(tid,el){
-  tasks[tid]=!tasks[tid];
-  el.classList.toggle('done',tasks[tid]);el.textContent=tasks[tid]?'✓':'';
-  el.closest('.task').classList.toggle('done-task',tasks[tid]);
-  save();
-}
+function toggleTask(tid,el){tasks[tid]=!tasks[tid];el.classList.toggle('done',tasks[tid]);el.textContent=tasks[tid]?'✓':'';el.closest('.task').classList.toggle('done-task',tasks[tid]);save();}
 
-// ══════════════════════════════════════════
-// DOCUMENTS
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
+// DOCS
+// ════════════════════════════════════════
 function renderDocs(){
   const m=getMatched().slice(0,8);
-  const docKeys=['resume','transcript','essay','recommendation','financial'];
-  const docLabels={resume:'📄 Resume',transcript:'📋 Transcript',essay:'✏️ Essay',recommendation:'📬 Recommendation',financial:'💵 Financial docs'};
+  const dks=['resume','transcript','essay','recommendation','financial'];
+  const dlbls={resume:'📄 Resume',transcript:'📋 Transcript',essay:'✏️ Essay',recommendation:'📬 Recommendation',financial:'💵 Financial docs'};
   const owned=JSON.parse(localStorage.getItem('sm_docs')||'{}');
-  let html=`<div class="card" style="margin-bottom:14px;"><div style="font-size:13px;font-weight:600;margin-bottom:12px;">${t('docs_have')}</div><div class="doc-row">${docKeys.map(d=>`<label class="cb-item${owned[d]?' checked':''}" onclick="toggleDoc('${d}',this)"><input type="checkbox" style="display:none"${owned[d]?' checked':''}> ${docLabels[d]}</label>`).join('')}</div></div>`;
-  m.forEach(s=>{
-    const need=[];
-    if(s.essay) need.push('essay');
-    if(s.rec) need.push('recommendation');
-    need.push('resume','transcript');
-    if(s.needBased) need.push('financial');
-    const miss=need.filter(d=>!owned[d]);
-    const ready=!miss.length;
-    html+=`<div class="card" style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><div style="font-size:13px;font-weight:600;">${s.title}</div><span class="badge ${ready?'badge-green':'badge-amber'}">${ready?t('ready'):`${miss.length} ${t('not_ready')}`}</span></div><div style="display:flex;flex-wrap:wrap;gap:6px;">${need.map(d=>`<span class="tag ${owned[d]?'tag-award':'tag-urgent'}">${owned[d]?'✓':'✗'} ${docLabels[d].replace(/^[^\s]+\s/,'')}</span>`).join('')}</div></div>`;
-  });
+  let html=`<div class="card" style="margin-bottom:14px"><div style="font-size:13px;font-weight:600;margin-bottom:12px">${t('docs_have')}</div><div class="doc-grid">${dks.map(d=>`<label class="cbi${owned[d]?' checked':''}" onclick="toggleDoc('${d}',this)"><input type="checkbox" style="display:none"${owned[d]?' checked':''}> ${dlbls[d]}</label>`).join('')}</div></div>`;
+  m.forEach(s=>{const need=[];if(s.essay)need.push('essay');if(s.rec)need.push('recommendation');need.push('resume','transcript');if(s.needBased)need.push('financial');const miss=need.filter(d=>!owned[d]);const ready=!miss.length;html+=`<div class="card" style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><div style="font-size:13px;font-weight:600">${s.title}</div><span class="badge ${ready?'badge-ok':'badge-warn'}">${ready?t('ready'):`${miss.length} ${t('not_ready')}`}</span></div><div style="display:flex;flex-wrap:wrap;gap:6px">${need.map(d=>`<span class="tag ${owned[d]?'tag-money':'tag-urg'}">${owned[d]?'✓':'✗'} ${dlbls[d].replace(/^[^\s]+\s/,'')}</span>`).join('')}</div></div>`;});
   document.getElementById('docs-content').innerHTML=html;
 }
-function toggleDoc(d,el){
-  const docs=JSON.parse(localStorage.getItem('sm_docs')||'{}');
-  docs[d]=!docs[d]; localStorage.setItem('sm_docs',JSON.stringify(docs));
-  el.classList.toggle('checked',docs[d]); renderDocs();
-}
+function toggleDoc(d,el){const docs=JSON.parse(localStorage.getItem('sm_docs')||'{}');docs[d]=!docs[d];localStorage.setItem('sm_docs',JSON.stringify(docs));el.classList.toggle('checked',docs[d]);renderDocs();}
 
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 // PROFILE
-// ══════════════════════════════════════════
-const YLABELS={HS3:'11th Grade',HS4:'12th Grade',UG1:'Freshman',UG2:'Sophomore',UG3:'Junior',UG4:'Senior',GRAD:'Graduate'};
-const MLABELS={CS:'Computer Science',ENG:'Engineering',MED:'Medicine',BIO:'Biology',BUS:'Business',LAW:'Law',ARTS:'Arts',EDUC:'Education',SOC:'Social Sciences',MATH:'Mathematics',OTHER:'Other'};
-function calcStrength(){
-  if(!profile) return 0;
-  let p=0;
-  if(profile.name)p+=10;if(profile.country)p+=5;if(profile.citizenship)p+=10;if(profile.school)p+=10;if(profile.year)p+=5;if(profile.gpa)p+=15;if(profile.major)p+=15;if(profile.activities?.length)p+=15;if(profile.financial)p+=10;if(profile.firstgen)p+=5;
-  return p;
-}
+// ════════════════════════════════════════
+const YL={HS3:'11th Grade',HS4:'12th Grade',UG1:'Freshman',UG2:'Sophomore',UG3:'Junior',UG4:'Senior',GRAD:'Graduate'};
+const ML={CS:'Computer Science',ENG:'Engineering',MED:'Medicine',BIO:'Biology',BUS:'Business',LAW:'Law',ARTS:'Arts',EDUC:'Education',SOC:'Social Sciences',MATH:'Mathematics',OTHER:'Other'};
+function calcStrength(){if(!profile)return 0;let p=0;if(profile.name)p+=10;if(profile.country)p+=5;if(profile.citizenship)p+=10;if(profile.school)p+=10;if(profile.year)p+=5;if(profile.gpa)p+=15;if(profile.major)p+=15;if(profile.activities?.length)p+=15;if(profile.financial)p+=10;if(profile.firstgen)p+=5;return p;}
 function renderProfile(){
-  const p=profile; if(!p) return;
-  const s=calcStrength();
-  document.getElementById('prof-val').textContent=s+'%';
-  document.getElementById('prof-bar').style.width=s+'%';
-  document.getElementById('prof-hint').textContent=s<80?t('improve_ai'):'';
+  const p=profile;if(!p)return;const s=calcStrength();
+  document.getElementById('prof-val').textContent=s+'%';document.getElementById('prof-bar').style.width=s+'%';document.getElementById('prof-hint').textContent=s<80?t('improve_ai'):'';
   document.getElementById('prof-display').innerHTML=`
-    <div class="card"><div class="prof-sec-title">👤 Personal</div><div class="pf"><div class="pf-label">${t('lbl_name')}</div><div class="pf-value">${p.name}</div></div><div class="pf"><div class="pf-label">${t('lbl_country')}</div><div class="pf-value">${p.country}</div></div><div class="pf"><div class="pf-label">${t('lbl_citizenship')}</div><div class="pf-value">${p.citizenship}</div></div></div>
-    <div class="card"><div class="prof-sec-title">🎓 Academic</div><div class="pf"><div class="pf-label">${t('lbl_school')}</div><div class="pf-value">${p.school||'—'}</div></div><div class="pf"><div class="pf-label">${t('lbl_year')}</div><div class="pf-value">${YLABELS[p.year]||p.year}</div></div><div class="pf"><div class="pf-label">GPA</div><div class="pf-value">${p.gpa}</div></div><div class="pf"><div class="pf-label">${t('lbl_major')}</div><div class="pf-value">${MLABELS[p.major]||p.major}</div></div></div>
-    <div class="card"><div class="prof-sec-title">🏅 ${t('lbl_activities')}</div>${p.activities?.length?p.activities.map(a=>`<div class="pf"><div class="pf-value">${a[0].toUpperCase()+a.slice(1)}</div></div>`).join(''):'<div class="pf-label">—</div>'}</div>
-    <div class="card"><div class="prof-sec-title">💡 ${t('lbl_financial')}</div><div class="pf"><div class="pf-label">${t('lbl_financial')}</div><div class="pf-value">${p.financial}</div></div><div class="pf"><div class="pf-label">${t('lbl_firstgen')}</div><div class="pf-value">${p.firstgen==='yes'?t('yes'):t('no')}</div></div></div>`;
+    <div class="card"><div class="psec-title">👤 Personal</div><div class="pf"><div class="pf-lbl">${t('lbl_name')}</div><div class="pf-val">${p.name}</div></div><div class="pf"><div class="pf-lbl">${t('lbl_country')}</div><div class="pf-val">${p.country}</div></div><div class="pf"><div class="pf-lbl">${t('lbl_citizenship')}</div><div class="pf-val">${p.citizenship}</div></div></div>
+    <div class="card"><div class="psec-title">🎓 Academic</div><div class="pf"><div class="pf-lbl">${t('lbl_school')}</div><div class="pf-val">${p.school||'—'}</div></div><div class="pf"><div class="pf-lbl">${t('lbl_year')}</div><div class="pf-val">${YL[p.year]||p.year}</div></div><div class="pf"><div class="pf-lbl">GPA</div><div class="pf-val">${p.gpa}</div></div><div class="pf"><div class="pf-lbl">${t('lbl_major')}</div><div class="pf-val">${ML[p.major]||p.major}</div></div></div>
+    <div class="card"><div class="psec-title">🏅 ${t('lbl_activities')}</div>${p.activities?.length?p.activities.map(a=>`<div class="pf"><div class="pf-val">${a[0].toUpperCase()+a.slice(1)}</div></div>`).join(''):'<div class="pf-lbl">—</div>'}</div>
+    <div class="card"><div class="psec-title">💡 Background</div><div class="pf"><div class="pf-lbl">${t('lbl_financial')}</div><div class="pf-val">${p.financial}</div></div><div class="pf"><div class="pf-lbl">${t('lbl_firstgen')}</div><div class="pf-val">${p.firstgen==='yes'?t('yes'):t('no')}</div></div></div>`;
 }
 
-// ══════════════════════════════════════════
-// AI — calls Groq via server proxy
-// ══════════════════════════════════════════
-async function openAI(type, schId){
+// ════════════════════════════════════════
+// AI — Groq via /api/ai
+// ════════════════════════════════════════
+async function openAI(type,schId){
   document.getElementById('ai-modal').classList.add('open');
   document.getElementById('ai-copy').style.display='none';
-  const titles={strategy:`✨ ${t('ai_strategy')}`,essay:`✨ ${t('essay_help')}`,planner:`✨ ${t('gen_plan')}`,profile:`✨ ${t('improve_ai')}`};
-  document.getElementById('ai-title').textContent=titles[type]||'✨ AI';
+  const titles={strategy:'✦ Strategy',essay:'✦ Essay Outline',planner:'✦ Action Plan',profile:'✦ Profile Review'};
+  document.getElementById('ai-title').textContent=titles[type]||'✦ AI';
   document.getElementById('ai-sub').textContent='';
-  document.getElementById('ai-out').innerHTML=`<div class="ai-loading"><div class="spinner"></div> ${t('generating')}</div>`;
-
-  const p=profile;
-  const m=getMatched();
-  const ps=`Student: ${p.name}, ${YLABELS[p.year]||p.year}, GPA ${p.gpa}, major ${MLABELS[p.major]||p.major}, citizenship ${p.citizenship}, activities: ${p.activities?.join(', ')||'none'}, financial: ${p.financial}, first-gen: ${p.firstgen}.`;
+  document.getElementById('ai-out').innerHTML=`<div class="ai-loading"><div class="spin"></div> ${t('generating')}</div>`;
+  const p=profile;const m=getMatched();
+  const ps=`Student: ${p.name}, ${YL[p.year]||p.year}, GPA ${p.gpa}, ${ML[p.major]||p.major}, citizenship ${p.citizenship}, activities: ${p.activities?.join(', ')||'none'}, financial: ${p.financial}, first-gen: ${p.firstgen}.`;
+  const lng=currentLang==='en'?'':` Respond in ${({de:'German',es:'Spanish',tr:'Turkish',nl:'Dutch',bg:'Bulgarian'})[currentLang]||'English'}.`;
   let prompt='';
-  const lang = currentLang === 'en' ? '' : `Respond in ${currentLang==='de'?'German':currentLang==='es'?'Spanish':currentLang==='tr'?'Turkish':currentLang==='nl'?'Dutch':currentLang==='bg'?'Bulgarian':'English'}.`;
-
-  if(type==='strategy'){
-    const top=m.slice(0,3).map(s=>`${s.title} ($${s.amount.toLocaleString()}, ${s.days}d, ${s.score}%)`).join('; ');
-    prompt=`${ps}\nTop matches: ${top}.\nGive a concise, actionable scholarship strategy. Which 3 to prioritize and why? What to do this week? Under 250 words. ${lang}`;
-  } else if(type==='essay'){
-    const s=DB.find(x=>x.id===schId);
-    prompt=`${ps}\nScholarship: "${s?.title}" — ${s?.desc}.\nGenerate a structured essay outline (hook, 3 body points, conclusion) tailored to my profile. 200 words max. ${lang}`;
-  } else if(type==='planner'){
-    const d=m.filter(s=>s.days<=21).map(s=>`${s.title}: ${s.days}d`).join(', ');
-    prompt=`${ps}\nUpcoming deadlines: ${d}.\nCreate a 4-week action plan with 3-4 specific tasks per week. Under 300 words. ${lang}`;
-  } else if(type==='profile'){
-    prompt=`${ps}\n${m.length} matches, avg score ${m.length?Math.round(m.reduce((a,s)=>a+s.score,0)/m.length):0}%.\nGive 5 specific, actionable suggestions to improve my scholarship profile. Under 200 words. ${lang}`;
-  }
-
-  try {
+  if(type==='strategy'){const top=m.slice(0,3).map(s=>`${s.title} ($${s.amount.toLocaleString()}, ${s.days}d, ${s.score}%)`).join('; ');prompt=`${ps}\nTop matches: ${top}.\nGive a concise, actionable scholarship strategy. Which 3 to prioritize and why? What to do this week? Under 250 words.${lng}`;}
+  else if(type==='essay'){const s=DB.find(x=>x.id===schId);prompt=`${ps}\nScholarship: "${s?.title}" — ${s?.desc}.\nGenerate a structured essay outline (hook, 3 body points, conclusion) tailored to my profile. 200 words max.${lng}`;}
+  else if(type==='planner'){const d=m.filter(s=>s.days<=21).map(s=>`${s.title}: ${s.days}d`).join(', ');prompt=`${ps}\nUpcoming: ${d}.\nCreate a 4-week action plan, 3-4 tasks per week. Under 300 words.${lng}`;}
+  else if(type==='profile'){prompt=`${ps}\n${m.length} matches, avg ${m.length?Math.round(m.reduce((a,s)=>a+s.score,0)/m.length):0}%.\nGive 5 specific, actionable suggestions to improve my scholarship profile. Under 200 words.${lng}`;}
+  try{
     const res=await fetch('/api/ai',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
     const data=await res.json();
     document.getElementById('ai-out').textContent=data.text||data.error||'No response.';
     document.getElementById('ai-copy').style.display='inline-flex';
-  } catch(e){
-    document.getElementById('ai-out').textContent='AI unavailable. All core features work offline.';
-  }
+  }catch(e){document.getElementById('ai-out').textContent='AI unavailable. All core features work offline.';}
 }
-function closeAI(){ document.getElementById('ai-modal').classList.remove('open'); }
-function copyAI(){ navigator.clipboard.writeText(document.getElementById('ai-out').textContent).catch(()=>{}); }
+function closeAI(){document.getElementById('ai-modal').classList.remove('open');}
+function copyAI(){navigator.clipboard.writeText(document.getElementById('ai-out').textContent).catch(()=>{});}
 
-// ══════════════════════════════════════════
-// PWA INSTALL
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
+// PWA
+// ════════════════════════════════════════
 let deferredPrompt=null;
-window.addEventListener('beforeinstallprompt',e=>{
-  e.preventDefault(); deferredPrompt=e;
-  document.getElementById('install-wrap').innerHTML=`<div class="install-bar">${t('install_msg')}<button class="btn btn-primary" style="padding:6px 12px;font-size:12px;" onclick="installPWA()">${t('install_btn')}</button></div>`;
-});
-async function installPWA(){ if(deferredPrompt){ deferredPrompt.prompt(); const r=await deferredPrompt.userChoice; if(r.outcome==='accepted') document.getElementById('install-wrap').innerHTML=''; deferredPrompt=null; } }
-if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('install-wrap').innerHTML=`<div class="install-bar">${t('install_msg')}<button class="btn btn-lime btn-sm" onclick="installPWA()">${t('install_btn')}</button></div>`;});
+async function installPWA(){if(deferredPrompt){deferredPrompt.prompt();const r=await deferredPrompt.userChoice;if(r.outcome==='accepted')document.getElementById('install-wrap').innerHTML='';deferredPrompt=null;}}
+if('serviceWorker' in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 // INIT
-// ══════════════════════════════════════════
+// ════════════════════════════════════════
 async function initApp(){
-  DB.forEach(s=>{ if(!status[s.id]) status[s.id]='not'; });
-  setLang(currentLang);
-  renderDashboard();
-  setSyncDot('syncing');
-  await loadFromCloud();
-  setSyncDot('synced');
+  DB.forEach(s=>{if(!status[s.id])status[s.id]='not';});
+  setLang(currentLang);renderDashboard();
+  pip('syncing');await loadCloud();pip('synced');
   renderDashboard();
 }
-
-renderDots();
-setLang(currentLang);
-if(loadLocal()){
-  document.getElementById('onboarding').style.display='none';
-  document.getElementById('app').style.display='flex';
-  initApp();
-}
+renderDots();setLang(currentLang);
+if(loadLocal()){document.getElementById('onboarding').style.display='none';document.getElementById('app').style.display='flex';initApp();}
 </script>
 </body>
 </html>
