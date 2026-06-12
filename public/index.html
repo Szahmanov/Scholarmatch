@@ -11,6 +11,7 @@
 <meta name="apple-mobile-web-app-title" content="ScholarMatch">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 /* ── TOKENS ── */
 :root {
@@ -462,7 +463,8 @@ select option { background: var(--surface-2); }
     <div class="ob-title" data-i18n="ob2_title">Personal information</div>
     <div class="ob-sub" data-i18n="ob2_sub">Used to filter scholarships by location and citizenship.</div>
     <div class="fg">
-      <div class="fgrp s2"><label class="flbl" data-i18n="lbl_name">Full name</label><input type="text" id="p-name" placeholder="Alex Johnson"></div>
+      <div class="fgrp"><label class="flbl" data-i18n="lbl_name">Full name <span style="color:var(--red)">*</span></label><input type="text" id="p-name" placeholder="Alex Johnson"></div>
+      <div class="fgrp"><label class="flbl">Email <span style="color:var(--red)">*</span></label><input type="email" id="p-email" placeholder="alex@email.com"></div>
       <div class="fgrp"><label class="flbl" data-i18n="lbl_country">Country</label>
         <select id="p-country"><option value="US">United States</option><option value="CA">Canada</option><option value="UK">United Kingdom</option><option value="AU">Australia</option><option value="DE">Germany</option><option value="NL">Netherlands</option><option value="ES">Spain</option><option value="TR">Turkey</option><option value="BG">Bulgaria</option><option value="OTHER">Other</option></select>
       </div>
@@ -480,11 +482,11 @@ select option { background: var(--surface-2); }
     <div class="ob-title" data-i18n="ob3_title">Academic profile</div>
     <div class="ob-sub" data-i18n="ob3_sub">Your GPA and major are the most important matching factors.</div>
     <div class="fg">
-      <div class="fgrp s2"><label class="flbl" data-i18n="lbl_school">School / University</label><input type="text" id="p-school" placeholder="UC Berkeley"></div>
+      <div class="fgrp s2"><label class="flbl" data-i18n="lbl_school">School / University <span style="color:var(--red)">*</span></label><input type="text" id="p-school" placeholder="UC Berkeley"></div>
       <div class="fgrp"><label class="flbl" data-i18n="lbl_year">Year</label>
         <select id="p-year"><option value="HS3">High School — 11th</option><option value="HS4">High School — 12th</option><option value="UG1">College — Freshman</option><option value="UG2">College — Sophomore</option><option value="UG3">College — Junior</option><option value="UG4">College — Senior</option><option value="GRAD">Graduate Student</option></select>
       </div>
-      <div class="fgrp"><label class="flbl" data-i18n="lbl_gpa">GPA (4.0 scale)</label><input type="number" id="p-gpa" placeholder="3.8" min="0" max="4.0" step="0.1"></div>
+      <div class="fgrp"><label class="flbl" data-i18n="lbl_gpa">GPA (4.0 scale) <span style="color:var(--red)">*</span></label><input type="number" id="p-gpa" placeholder="3.8" min="0" max="4.0" step="0.1"></div>
       <div class="fgrp s2"><label class="flbl" data-i18n="lbl_major">Major</label>
         <select id="p-major"><option value="CS">Computer Science</option><option value="ENG">Engineering</option><option value="MED">Medicine</option><option value="BIO">Biology</option><option value="BUS">Business</option><option value="LAW">Law</option><option value="ARTS">Arts / Humanities</option><option value="EDUC">Education</option><option value="SOC">Social Sciences</option><option value="MATH">Mathematics</option><option value="OTHER">Other</option></select>
       </div>
@@ -643,6 +645,7 @@ select option { background: var(--surface-2); }
       <div style="margin-top:14px;display:flex;gap:10px">
         <button class="btn btn-ghost" onclick="resetProfile()" data-i18n="edit_profile">Edit profile</button>
         <button class="btn btn-ai" onclick="openAI('profile')">✦ <span data-i18n="improve_ai">Improve with AI</span></button>
+        <button class="btn btn-ai" id="reminder-btn" onclick="sendWeeklyReminder()">✦ Send reminder email</button>
       </div>
     </div>
   </div>
@@ -659,9 +662,6 @@ select option { background: var(--surface-2); }
       <button class="btn btn-ghost btn-sm" onclick="closeAI()" data-i18n="close">Close</button>
     </div>
   </div>
-</div>
-  <div style="text-align:center;padding:24px;font-size:12px;color:#5F5E5A;border-top:1px solid rgba(255,255,255,0.06);margin-top:40px;">
-  Powered by <a href="https://stagove.com/" target="_blank" style="color:#C8F04A;text-decoration:none;">StaGove</a>
 </div>
 
 <script>
@@ -745,12 +745,44 @@ function save(){saveLocal();clearTimeout(saveT);saveT=setTimeout(saveCloud,1500)
 // ════════════════════════════════════════
 let step=1;const STEPS=4;
 function renderDots(){document.getElementById('dots').innerHTML=Array.from({length:STEPS},(_,i)=>`<div class="dot${i<step?' done':''}"></div>`).join('');}
-function nextStep(){document.getElementById('step-'+step).classList.remove('active');step++;document.getElementById('step-'+step).classList.add('active');renderDots();}
+
+function showError(fieldId, msg){
+  const el=document.getElementById(fieldId);
+  el.style.borderColor='var(--red)';
+  let err=el.parentNode.querySelector('.field-err');
+  if(!err){err=document.createElement('div');err.className='field-err';err.style.cssText='color:var(--red);font-size:11px;margin-top:4px;';el.parentNode.appendChild(err);}
+  err.textContent=msg;
+  setTimeout(()=>{el.style.borderColor='';if(err)err.remove();},3000);
+}
+
+function validateStep(s){
+  if(s===2){
+    const name=document.getElementById('p-name').value.trim();
+    const email=document.getElementById('p-email').value.trim();
+    if(!name){showError('p-name','Please enter your name');return false;}
+    if(!email||!email.includes('@')){showError('p-email','Please enter a valid email');return false;}
+    return true;
+  }
+  if(s===3){
+    const school=document.getElementById('p-school').value.trim();
+    const gpa=document.getElementById('p-gpa').value.trim();
+    if(!school){showError('p-school','Please enter your school name');return false;}
+    if(!gpa||isNaN(parseFloat(gpa))||parseFloat(gpa)<0||parseFloat(gpa)>4){showError('p-gpa','Please enter a valid GPA (0.0 – 4.0)');return false;}
+    return true;
+  }
+  return true;
+}
+
+function nextStep(){
+  if(!validateStep(step))return;
+  document.getElementById('step-'+step).classList.remove('active');step++;document.getElementById('step-'+step).classList.add('active');renderDots();
+}
 function prevStep(){document.getElementById('step-'+step).classList.remove('active');step--;document.getElementById('step-'+step).classList.add('active');renderDots();}
 function getActs(){return Array.from(document.querySelectorAll('#act-grid input:checked')).map(e=>e.value);}
 
 function finishOnboarding(){
-  profile={name:document.getElementById('p-name').value||'Student',country:document.getElementById('p-country').value,state:document.getElementById('p-state').value,citizenship:document.getElementById('p-citizenship').value,dob:document.getElementById('p-dob').value,school:document.getElementById('p-school').value,year:document.getElementById('p-year').value,gpa:parseFloat(document.getElementById('p-gpa').value)||3.0,major:document.getElementById('p-major').value,activities:getActs(),financial:document.getElementById('p-financial').value,firstgen:document.getElementById('p-firstgen').value};
+  if(!validateStep(step))return;
+  profile={name:document.getElementById('p-name').value.trim(),email:document.getElementById('p-email').value.trim(),country:document.getElementById('p-country').value,state:document.getElementById('p-state').value,citizenship:document.getElementById('p-citizenship').value,dob:document.getElementById('p-dob').value,school:document.getElementById('p-school').value,year:document.getElementById('p-year').value,gpa:parseFloat(document.getElementById('p-gpa').value)||3.0,major:document.getElementById('p-major').value,activities:getActs(),financial:document.getElementById('p-financial').value,firstgen:document.getElementById('p-firstgen').value};
   DB.forEach(s=>{if(!status[s.id])status[s.id]='not';});
   save();
   document.getElementById('onboarding').style.display='none';
@@ -955,6 +987,48 @@ async function openAI(type,schId){
 }
 function closeAI(){document.getElementById('ai-modal').classList.remove('open');}
 function copyAI(){navigator.clipboard.writeText(document.getElementById('ai-out').textContent).catch(()=>{});}
+
+// ════════════════════════════════════════
+// EMAIL REMINDERS via EmailJS
+// ════════════════════════════════════════
+// To enable: create free account at emailjs.com
+// Add Service ID, Template ID, Public Key below
+const EMAILJS_SERVICE = 'service_scholarmatch';
+const EMAILJS_TEMPLATE = 'template_reminder';
+const EMAILJS_KEY = 'YOUR_PUBLIC_KEY'; // replace after EmailJS setup
+
+async function sendWeeklyReminder(){
+  if(!profile?.email){alert('No email in your profile.');return;}
+  const m=getMatched();
+  const urgent=m.filter(s=>s.days<=14);
+  const top3=m.slice(0,3).map(s=>`• ${s.title} — $${s.amount.toLocaleString()} (deadline ${fmtDate(s.deadline)})`).join('\n');
+  const urgentText=urgent.length?urgent.map(s=>`⚠️ ${s.title} — ${s.days} days left`).join('\n'):'No urgent deadlines this week.';
+
+  const btn=document.getElementById('reminder-btn');
+  btn.textContent='Sending...';btn.disabled=true;
+
+  try{
+    if(EMAILJS_KEY==='YOUR_PUBLIC_KEY'){
+      // Demo mode — show what would be sent
+      alert(`📧 Demo mode — would send to ${profile.email}:\n\nTop matches:\n${top3}\n\nUrgent:\n${urgentText}\n\n(Set up EmailJS to enable real sending)`);
+      btn.textContent='✦ Send reminder email';btn.disabled=false;return;
+    }
+    emailjs.init(EMAILJS_KEY);
+    await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+      to_email: profile.email,
+      to_name: profile.name,
+      top_scholarships: top3,
+      urgent_deadlines: urgentText,
+      total_value: '$'+m.reduce((a,s)=>a+s.amount,0).toLocaleString(),
+      matched_count: m.length
+    });
+    btn.textContent='✓ Reminder sent!';
+    setTimeout(()=>{btn.textContent='✦ Send reminder email';btn.disabled=false;},3000);
+  }catch(e){
+    btn.textContent='Failed — try again';btn.disabled=false;
+    console.error(e);
+  }
+}
 
 // ════════════════════════════════════════
 // PWA
